@@ -1,8 +1,7 @@
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { useSignInEmailPassword } from "@nhost/react";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Alert,
     ScrollView,
@@ -16,28 +15,31 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signInEmailPassword, isLoading, isSuccess, isError, error } =
-    useSignInEmailPassword();
+  const [isLoading, setIsLoading] = useState(false);
 
+  // TODO: Replace with real Nhost auth when backend is ready
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password");
       return;
     }
-    const result = await signInEmailPassword(email, password);
-  };
 
-  useEffect(() => {
-    if (isSuccess) {
-      router.replace("/(tabs)");
-    }
-    if (isError) {
-      Alert.alert(
-        "Login Failed",
-        error?.message || "An unknown error occurred",
-      );
-    }
-  }, [isSuccess, isError, error]);
+    setIsLoading(true);
+
+    // Mock authentication - accept "admin"/"admin"
+    setTimeout(() => {
+      if (email === "admin" && password === "admin") {
+        setIsLoading(false);
+        router.replace("/(tabs)");
+      } else {
+        setIsLoading(false);
+        Alert.alert(
+          "Login Failed",
+          "Invalid credentials. Use email: admin, password: admin",
+        );
+      }
+    }, 500); // Simulate network delay
+  };
 
   return (
     <View className="flex-1 bg-primary">
@@ -80,6 +82,7 @@ export default function LoginScreen() {
             title="Log In"
             onPress={handleLogin}
             variant="primary"
+            loading={isLoading}
             className="mb-4"
           />
 
