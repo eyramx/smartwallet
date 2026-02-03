@@ -39,7 +39,7 @@ export function Input({
           secureTextEntry={isPassword && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
-          className="bg-secondary rounded-2xl px-4 py-4 text-text-dark"
+          className="bg-secondary rounded-full px-6 py-4 text-text-dark"
         />
         {isPassword && (
           <TouchableOpacity

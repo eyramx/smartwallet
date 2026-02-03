@@ -69,19 +69,23 @@ export default function SignUpScreen() {
   }, [isSuccess, isError, error]);
 
   return (
-    <View className="flex-1 bg-primary">
-      <StatusBar barStyle="light-content" />
+    <View className="flex-1 bg-white">
+      <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
-      <View className="pt-16 pb-6 px-6">
-        <Text className="text-3xl font-bold text-text-dark">
-          Create Account
-        </Text>
-      </View>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        className="px-6 pt-12 pb-6"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View className="mt-10 mb-8">
+          <Text className="text-3xl font-bold text-text-dark text-center">
+            Create Account
+          </Text>
+        </View>
 
-      {/* Form */}
-      <View className="flex-1 bg-secondary rounded-t-[30px] px-6 pt-8">
-        <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Form */}
+        <View className="mb-6">
           <Input
             label="Full Name"
             placeholder="John Doe"
@@ -136,7 +140,7 @@ export default function SignUpScreen() {
           />
 
           {/* Terms */}
-          <Text className="text-text-gray text-sm text-center mb-6">
+          <Text className="text-text-gray text-sm text-center mt-2 mb-6">
             By continuing, you agree to{" "}
             <Text className="text-text-dark font-semibold">Terms of Use</Text>{" "}
             and{" "}
@@ -149,22 +153,19 @@ export default function SignUpScreen() {
             title={isLoading ? "Creating Account..." : "Sign Up"}
             onPress={handleSignUp}
             variant="primary"
-            className="mb-4"
+            className="mb-8"
             disabled={isLoading}
           />
 
           {/* Login Link */}
-          <TouchableOpacity
-            onPress={() => router.push("/login")}
-            className="items-center mb-8"
-          >
-            <Text className="text-text-gray">
-              Already have an account?{" "}
-              <Text className="text-primary font-semibold">Log In</Text>
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
+          <View className="flex-row justify-center items-center mb-4">
+            <Text className="text-text-gray">Already have an account? </Text>
+            <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+              <Text className="text-primary font-bold">Log In</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
