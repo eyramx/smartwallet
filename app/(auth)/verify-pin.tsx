@@ -2,12 +2,12 @@ import { Button } from "@/components/Button";
 import { useRouter } from "expo-router"; // Fixed import
 import { useRef, useState } from "react";
 import {
-    ScrollView,
-    StatusBar,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function VerifyPinScreen() {
@@ -59,7 +59,9 @@ export default function VerifyPinScreen() {
             {[0, 1, 2, 3].map((i) => (
               <TextInput
                 key={i}
-                ref={(ref) => (inputs.current[i] = ref)}
+                ref={(ref) => {
+                  inputs.current[i] = ref;
+                }}
                 value={code[i]}
                 onChangeText={(text) => handleChange(text, i)}
                 keyboardType="number-pad"
