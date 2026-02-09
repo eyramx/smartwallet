@@ -9,7 +9,12 @@ interface InputProps {
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
-  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+  keyboardType?:
+    | "default"
+    | "email-address"
+    | "numeric"
+    | "phone-pad"
+    | "decimal-pad";
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   className?: string;
 }
@@ -47,8 +52,10 @@ export function Input({
             className="absolute right-4 top-4"
           >
             {showPassword ? (
+              // @ts-ignore
               <EyeOff size={20} color="#6B7280" />
             ) : (
+              // @ts-ignore
               <Eye size={20} color="#6B7280" />
             )}
           </TouchableOpacity>

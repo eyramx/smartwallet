@@ -4,12 +4,12 @@ import { useSignInEmailPassword } from "@nhost/react";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function LoginScreen() {
@@ -24,7 +24,15 @@ export default function LoginScreen() {
       Alert.alert("Error", "Please enter both email and password");
       return;
     }
-    const result = await signInEmailPassword(email, password);
+
+    try {
+      const result = await signInEmailPassword(email, password);
+      if (result.error) {
+        Alert.alert("Login Failed", result.error.message);
+      }
+    } catch (e) {
+      Alert.alert("Error", "An unexpected error occurred");
+    }
   };
 
   useEffect(() => {
@@ -81,6 +89,8 @@ export default function LoginScreen() {
             onPress={handleLogin}
             variant="primary"
             className="mb-4"
+            loading={isLoading}
+            disabled={isLoading}
           />
 
           {/* Sign Up Link */}
