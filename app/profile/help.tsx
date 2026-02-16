@@ -29,14 +29,16 @@ function ContactItem({ icon, label, onPress }: ContactItemProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row items-center justify-between py-4 border-b border-white/20"
+      className="flex-row items-center justify-between py-4 border-b border-white/20 dark:border-dark-bg"
       activeOpacity={0.7}
     >
       <View className="flex-row items-center flex-1">
-        <View className="w-10 h-10 rounded-full bg-primary items-center justify-center mr-3">
+        <View className="w-10 h-10 rounded-full bg-primary dark:bg-dark-primary items-center justify-center mr-3">
           {icon}
         </View>
-        <Text className="text-text-dark text-base font-medium">{label}</Text>
+        <Text className="text-text-dark dark:text-dark-text text-base font-medium">
+          {label}
+        </Text>
       </View>
       <ChevronRight size={20} color="#1A3B34" />
     </TouchableOpacity>
@@ -54,11 +56,11 @@ function FAQItem({ question, answer }: FAQItemProps) {
   return (
     <TouchableOpacity
       onPress={() => setExpanded(!expanded)}
-      className="py-4 border-b border-white/20"
+      className="py-4 border-b border-white/20 dark:border-dark-bg"
       activeOpacity={0.7}
     >
       <View className="flex-row items-center justify-between">
-        <Text className="text-text-dark text-sm font-medium flex-1 mr-2">
+        <Text className="text-text-dark dark:text-dark-text text-sm font-medium flex-1 mr-2">
           {question}
         </Text>
         <ChevronDown
@@ -70,7 +72,9 @@ function FAQItem({ question, answer }: FAQItemProps) {
         />
       </View>
       {expanded && answer && (
-        <Text className="text-text-gray text-sm mt-2">{answer}</Text>
+        <Text className="text-text-gray dark:text-dark-text-secondary text-sm mt-2">
+          {answer}
+        </Text>
       )}
     </TouchableOpacity>
   );

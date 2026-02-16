@@ -1,7 +1,13 @@
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+    Text,
+    TextInput,
+    TextInputProps,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 interface InputProps {
   label: string;
@@ -9,7 +15,7 @@ interface InputProps {
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
-  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+  keyboardType?: TextInputProps["keyboardType"];
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   className?: string;
 }
@@ -29,7 +35,9 @@ export function Input({
 
   return (
     <View className={cn("mb-4", className)}>
-      <Text className="text-text-dark font-medium mb-2">{label}</Text>
+      <Text className="text-text-dark dark:text-dark-text font-medium mb-2">
+        {label}
+      </Text>
       <View className="relative">
         <TextInput
           value={value}
@@ -39,7 +47,7 @@ export function Input({
           secureTextEntry={isPassword && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
-          className="bg-secondary rounded-full px-6 py-4 text-text-dark"
+          className="bg-secondary dark:bg-dark-surface rounded-full px-6 py-4 text-text-dark dark:text-dark-text"
         />
         {isPassword && (
           <TouchableOpacity

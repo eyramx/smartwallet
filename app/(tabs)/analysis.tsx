@@ -1,5 +1,7 @@
 import { BalanceCard } from "@/components/BalanceCard";
 import { BarChart } from "@/components/BarChart";
+import { LineChart } from "@/components/LineChart";
+import { PieChart } from "@/components/PieChart";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { cn } from "@/lib/utils";
 import { useRouter } from "expo-router";
@@ -10,7 +12,7 @@ import {
     StatusBar,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 type PeriodFilter = "Daily" | "Weekly" | "Monthly" | "Year";
@@ -80,19 +82,21 @@ export default function AnalysisScreen() {
   }, [selectedPeriod]);
 
   return (
-    <View className="flex-1 bg-secondary">
+    <View className="flex-1 bg-secondary dark:bg-dark-bg">
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
-      <View className="bg-primary pt-12 pb-4 px-6">
+      <View className="bg-primary dark:bg-dark-primary pt-12 pb-4 px-6">
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity onPress={() => router.back()}>
             <View className="w-10 h-10" />
           </TouchableOpacity>
-          <Text className="text-text-dark text-xl font-bold">Analysis</Text>
+          <Text className="text-text-dark dark:text-white text-xl font-bold">
+            Analysis
+          </Text>
           <TouchableOpacity
             onPress={() => router.push("/notifications")}
-            className="w-10 h-10 bg-white rounded-full items-center justify-center"
+            className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
           >
             <Bell size={20} color="#1A3B34" />
           </TouchableOpacity>
@@ -177,15 +181,69 @@ export default function AnalysisScreen() {
           </View>
         </View>
 
+        {/* Spending by Category - Pie Chart */}
+        <View className="mb-6 rounded-3xl bg-white p-6">
+          <Text className="mb-4 text-lg font-bold text-text-dark">
+            Spending by Category
+          </Text>
+          <PieChart
+            data={[
+              { label: "Food", value: 430, color: "#FF6B6B" },
+              { label: "Transport", value: 280, color: "#4ECDC4" },
+              { label: "Shopping", value: 190, color: "#FFE66D" },
+              { label: "Bills", value: 150, color: "#A8E6CF" },
+              { label: "Entertainment", value: 137.4, color: "#FF8B94" },
+            ]}
+          />
+        </View>
+
+        {/* Spending Trend - Line Chart */}
+        <View className="mb-6 rounded-3xl bg-white dark:bg-dark-surface p-6">
+          <Text className="mb-4 text-lg font-bold text-text-dark dark:text-dark-text">
+            Spending Trend
+          </Text>
+          <LineChart
+            data={chartData.data.map((item) => ({
+              label: item.day,
+              value: item.value,
+            }))}
+          />
+        </View>
+
         {/* My Targets */}
-        <Text className="text-text-dark font-bold text-lg mb-4">
+        <Text className="mb-4 text-lg font-bold text-text-dark">
           My Targets
         </Text>
 
         {/* Progress Circles */}
-        <View className="flex-row gap-4 mb-6">
+        <View className="mb-6 flex-row gap-4">
           <ProgressCircle percentage={30} label="Travel" />
           <ProgressCircle percentage={50} label="Car" />
+        </View>
+
+        {/* Monthly Comparison */}
+        <View className="mb-6 rounded-3xl bg-white p-6">
+          <Text className="mb-4 text-lg font-bold text-text-dark">
+            Monthly Comparison
+          </Text>
+          <View className="gap-3">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm text-text-gray">This Month</Text>
+              <Text className="text-lg font-bold text-text-dark">
+                GH₵{chartData.expense}
+              </Text>
+            </View>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm text-text-gray">Last Month</Text>
+              <Text className="text-sm text-text-gray">GH₵1,430.20</Text>
+            </View>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm font-semibold text-primary">
+                Difference
+              </Text>
+              <Text className="text-sm font-semibold text-red-500">-17% ↓</Text>
+            </View>
+          </View>
         </View>
 
         {/* Bottom Spacing */}

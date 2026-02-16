@@ -4,12 +4,12 @@ import { useSignUpEmailPassword } from "@nhost/react";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Alert,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 import { nhost } from "@/lib/nhost";
@@ -125,7 +125,7 @@ export default function SignUpScreen() {
   }, [isSuccess, isError, error]);
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-dark-bg">
       <StatusBar barStyle="dark-content" />
 
       <ScrollView
@@ -135,7 +135,7 @@ export default function SignUpScreen() {
       >
         {/* Header */}
         <View className="mt-10 mb-8">
-          <Text className="text-3xl font-bold text-text-dark text-center">
+          <Text className="text-3xl font-bold text-text-dark dark:text-dark-text text-center">
             Create Account
           </Text>
         </View>
@@ -195,11 +195,15 @@ export default function SignUpScreen() {
           />
 
           {/* Terms */}
-          <Text className="text-text-gray text-sm text-center mt-2 mb-6">
+          <Text className="text-text-gray dark:text-dark-text-secondary text-sm text-center mt-2 mb-6">
             By continuing, you agree to{" "}
-            <Text className="text-text-dark font-semibold">Terms of Use</Text>{" "}
+            <Text className="text-text-dark dark:text-dark-text font-semibold">
+              Terms of Use
+            </Text>{" "}
             and{" "}
-            <Text className="text-text-dark font-semibold">Privacy Policy</Text>
+            <Text className="text-text-dark dark:text-dark-text font-semibold">
+              Privacy Policy
+            </Text>
             .
           </Text>
 
@@ -214,9 +218,13 @@ export default function SignUpScreen() {
 
           {/* Login Link */}
           <View className="flex-row justify-center items-center mb-4">
-            <Text className="text-text-gray">Already have an account? </Text>
+            <Text className="text-text-gray dark:text-dark-text-secondary">
+              Already have an account?{" "}
+            </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-              <Text className="text-primary font-bold">Log In</Text>
+              <Text className="text-primary dark:text-dark-primary font-bold">
+                Log In
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -1,17 +1,30 @@
 import { NhostReactProvider } from "@nhost/react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "nativewind";
+import { useEffect } from "react";
 import { View } from "react-native";
 import "react-native-reanimated";
+import { BudgetProvider } from "../contexts/BudgetContext";
+import { CategoryProvider } from "../contexts/CategoryContext";
+import { GoalProvider } from "../contexts/GoalContext";
+import { PreferencesProvider } from "../contexts/PreferencesContext";
+import { RecurringTransactionProvider } from "../contexts/RecurringTransactionContext";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
+import { TransactionProvider } from "../contexts/TransactionContext";
 import "../global.css";
 import { nhost } from "../lib/nhost";
 
 function RootNavigator() {
   const { isDarkMode } = useTheme();
+  const { setColorScheme } = useColorScheme();
+
+  useEffect(() => {
+    setColorScheme(isDarkMode ? "dark" : "light");
+  }, [isDarkMode, setColorScheme]);
 
   return (
-    <View className={isDarkMode ? "dark flex-1" : "flex-1"}>
+    <View className="flex-1">
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="welcome" />
@@ -23,6 +36,11 @@ function RootNavigator() {
         <Stack.Screen name="notifications" />
         <Stack.Screen name="search" />
         <Stack.Screen name="calendar" />
+        <Stack.Screen name="budgets" />
+        <Stack.Screen name="categories-management" />
+        <Stack.Screen name="recurring-transactions" />
+        <Stack.Screen name="financial-goals" />
+        <Stack.Screen name="reports" />
         <Stack.Screen name="category/food" />
         <Stack.Screen name="category/transport" />
         <Stack.Screen name="category/groceries" />
@@ -56,9 +74,21 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <NhostReactProvider nhost={nhost}>
-        <RootNavigator />
-      </NhostReactProvider>
+      <PreferencesProvider>
+        <BudgetProvider>
+          <CategoryProvider>
+            <TransactionProvider>
+              <RecurringTransactionProvider>
+                <GoalProvider>
+                  <NhostReactProvider nhost={nhost}>
+                    <RootNavigator />
+                  </NhostReactProvider>
+                </GoalProvider>
+              </RecurringTransactionProvider>
+            </TransactionProvider>
+          </CategoryProvider>
+        </BudgetProvider>
+      </PreferencesProvider>
     </ThemeProvider>
   );
 }

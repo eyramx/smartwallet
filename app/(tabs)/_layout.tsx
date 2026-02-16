@@ -3,11 +3,10 @@ import { BarChart3, Home, Layers, User } from "lucide-react-native";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { isDarkMode } = useTheme();
   // TODO: Re-enable auth when backend is ready
   // const { isAuthenticated, isLoading } = useAuthenticationStatus();
   // if (isLoading) {
@@ -20,7 +19,12 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: isDarkMode ? "#00D9A3" : "#02C38E",
+        tabBarInactiveTintColor: isDarkMode ? "#A8C5BC" : "#6B7280",
+        tabBarStyle: {
+          backgroundColor: isDarkMode ? "#1A1F2E" : "#FFFFFF",
+          borderTopColor: isDarkMode ? "#0F1419" : "#E5E7EB",
+        },
         headerShown: false,
         tabBarButton: HapticTab,
       }}

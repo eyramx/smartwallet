@@ -7,7 +7,7 @@ export default function SupportScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-primary">
+    <View className="flex-1 bg-primary dark:bg-dark-primary">
       <StatusBar style="light" />
 
       {/* Header */}
@@ -15,67 +15,75 @@ export default function SupportScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text className="text-text-dark text-xl font-bold">Online Support</Text>
+        <Text className="text-text-dark dark:text-white text-xl font-bold">
+          Online Support
+        </Text>
         <TouchableOpacity
           onPress={() => router.push("/notifications")}
-          className="w-10 h-10 bg-white rounded-full items-center justify-center"
+          className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
         >
           <Bell size={20} color="#1A3B34" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 bg-secondary rounded-t-3xl px-6 pt-8">
-        <Text className="text-text-dark text-lg font-semibold mb-4">
+      <ScrollView className="flex-1 bg-secondary dark:bg-dark-bg rounded-t-3xl px-6 pt-8">
+        <Text className="text-text-dark dark:text-dark-text text-lg font-semibold mb-4">
           Active Chats
         </Text>
 
-        <View className="bg-white/50 rounded-2xl p-4 mb-6">
+        <View className="bg-white/50 dark:bg-dark-surface rounded-2xl p-4 mb-6">
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <Text className="text-text-dark text-base font-semibold mb-1">
+              <Text className="text-text-dark dark:text-dark-text text-base font-semibold mb-1">
                 Support Assistant
               </Text>
-              <Text className="text-text-gray text-sm">
+              <Text className="text-text-gray dark:text-dark-text-secondary text-sm">
                 Hello! I'm here to assist you
               </Text>
             </View>
-            <Text className="text-text-gray text-xs">2 Min Ago</Text>
+            <Text className="text-text-gray dark:text-dark-text-secondary text-xs">
+              2 Min Ago
+            </Text>
           </View>
         </View>
 
-        <Text className="text-text-dark text-lg font-semibold mb-4">
+        <Text className="text-text-dark dark:text-dark-text text-lg font-semibold mb-4">
           Ended Chats
         </Text>
 
-        <View className="bg-white/50 rounded-2xl p-4 mb-3">
+        <View className="bg-white/50 dark:bg-dark-surface rounded-2xl p-4 mb-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <Text className="text-text-dark text-base font-semibold mb-1">
+              <Text className="text-text-dark dark:text-dark-text text-base font-semibold mb-1">
                 Help Center
               </Text>
-              <Text className="text-text-gray text-sm">
+              <Text className="text-text-gray dark:text-dark-text-secondary text-sm">
                 Your account is ready to use...
               </Text>
             </View>
-            <Text className="text-text-gray text-xs">Feb 08 -2024</Text>
+            <Text className="text-text-gray dark:text-dark-text-secondary text-xs">
+              Feb 08 -2024
+            </Text>
           </View>
         </View>
 
-        <View className="bg-white/50 rounded-2xl p-4 mb-3">
+        <View className="bg-white/50 dark:bg-dark-surface rounded-2xl p-4 mb-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <Text className="text-text-dark text-base font-semibold mb-1">
+              <Text className="text-text-dark dark:text-dark-text text-base font-semibold mb-1">
                 Support Assistant
               </Text>
-              <Text className="text-text-gray text-sm">
+              <Text className="text-text-gray dark:text-dark-text-secondary text-sm">
                 Hello! I'm here to assist you
               </Text>
             </View>
-            <Text className="text-text-gray text-xs">Dic 24 -2023</Text>
+            <Text className="text-text-gray dark:text-dark-text-secondary text-xs">
+              Dic 24 -2023
+            </Text>
           </View>
         </View>
 
-        <View className="bg-white/50 rounded-2xl p-4 mb-3">
+        <View className="bg-white/50 dark:bg-dark-surface rounded-2xl p-4 mb-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
               <Text className="text-text-dark text-base font-semibold mb-1">

@@ -2,12 +2,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft, Bell, Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
-import {
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function ChangePinScreen() {
   const router = useRouter();
@@ -24,7 +19,7 @@ export default function ChangePinScreen() {
   };
 
   return (
-    <View className="flex-1 bg-primary">
+    <View className="flex-1 bg-primary dark:bg-dark-primary">
       <StatusBar style="light" />
 
       {/* Header */}
@@ -32,23 +27,25 @@ export default function ChangePinScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text className="text-text-dark text-xl font-bold">Change Pin</Text>
+        <Text className="text-text-dark dark:text-white text-xl font-bold">
+          Change Pin
+        </Text>
         <TouchableOpacity
           onPress={() => router.push("/notifications")}
-          className="w-10 h-10 bg-white rounded-full items-center justify-center"
+          className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
         >
           <Bell size={20} color="#1A3B34" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 bg-secondary rounded-t-3xl px-6 pt-8">
+      <ScrollView className="flex-1 bg-secondary dark:bg-dark-bg rounded-t-3xl px-6 pt-8">
         {/* Current Pin */}
         <View className="mb-6">
-          <Text className="text-text-dark text-sm font-medium mb-2">
+          <Text className="text-text-dark dark:text-dark-text text-sm font-medium mb-2">
             Current Pin
           </Text>
-          <View className="flex-row items-center bg-white/50 rounded-2xl px-4">
-            <Text className="flex-1 text-2xl tracking-widest py-4">
+          <View className="flex-row items-center bg-white/50 dark:bg-dark-surface rounded-2xl px-4">
+            <Text className="flex-1 text-text-dark dark:text-dark-text text-2xl tracking-widest py-4">
               {showCurrentPin ? currentPin : "••••"}
             </Text>
             <TouchableOpacity

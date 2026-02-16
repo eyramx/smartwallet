@@ -19,14 +19,16 @@ function FingerprintItem({ icon, label, onPress }: FingerprintItemProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row items-center justify-between py-5 border-b border-white/20"
+      className="flex-row items-center justify-between py-5 border-b border-white/20 dark:border-dark-bg"
       activeOpacity={0.7}
     >
       <View className="flex-row items-center flex-1">
-        <View className="w-14 h-14 rounded-full bg-blue-400 items-center justify-center mr-3">
+        <View className="w-14 h-14 rounded-full bg-blue-400 dark:bg-dark-primary items-center justify-center mr-3">
           {icon}
         </View>
-        <Text className="text-text-dark text-base font-medium">{label}</Text>
+        <Text className="text-text-dark dark:text-dark-text text-base font-medium">
+          {label}
+        </Text>
       </View>
       <ChevronRight size={20} color="#1A3B34" />
     </TouchableOpacity>
@@ -37,7 +39,7 @@ export default function FingerprintScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-primary">
+    <View className="flex-1 bg-primary dark:bg-dark-primary">
       <StatusBar style="light" />
 
       {/* Header */}
@@ -45,16 +47,18 @@ export default function FingerprintScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text className="text-text-dark text-xl font-bold">Fingerprint</Text>
+        <Text className="text-text-dark dark:text-white text-xl font-bold">
+          Fingerprint
+        </Text>
         <TouchableOpacity
           onPress={() => router.push("/notifications")}
-          className="w-10 h-10 bg-white rounded-full items-center justify-center"
+          className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
         >
           <Bell size={20} color="#1A3B34" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 bg-secondary rounded-t-3xl px-6 pt-8">
+      <ScrollView className="flex-1 bg-secondary dark:bg-dark-bg rounded-t-3xl px-6 pt-8">
         <FingerprintItem
           icon={<Fingerprint size={28} color="#ffffff" />}
           label="John Fingerprint"

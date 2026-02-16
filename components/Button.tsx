@@ -3,7 +3,7 @@ import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 
 interface ButtonProps {
   title: string;
-  onPress: () => void;
+  onPress?: () => void;
   variant?: "primary" | "secondary";
   loading?: boolean;
   disabled?: boolean;
@@ -23,11 +23,13 @@ export function Button({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={disabled || loading || !onPress}
       className={cn(
         "w-full py-4 rounded-full items-center justify-center",
-        isPrimary ? "bg-primary" : "bg-secondary",
-        (disabled || loading) && "opacity-50",
+        isPrimary
+          ? "bg-primary dark:bg-dark-primary"
+          : "bg-secondary dark:bg-dark-surface",
+        (disabled || loading || !onPress) && "opacity-50",
         className,
       )}
     >
@@ -37,7 +39,7 @@ export function Button({
         <Text
           className={cn(
             "text-lg font-semibold",
-            isPrimary ? "text-white" : "text-text-dark",
+            isPrimary ? "text-white" : "text-text-dark dark:text-dark-text",
           )}
         >
           {title}

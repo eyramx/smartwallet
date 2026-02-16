@@ -30,19 +30,21 @@ export default function CategoriesScreen() {
   const [newCategoryName, setNewCategoryName] = useState("");
 
   return (
-    <View className="flex-1 bg-secondary">
+    <View className="flex-1 bg-secondary dark:bg-dark-bg">
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
-      <View className="bg-primary pt-12 pb-4 px-6">
+      <View className="bg-primary dark:bg-dark-primary pt-12 pb-4 px-6">
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity onPress={() => router.back()}>
             <View className="w-10 h-10" />
           </TouchableOpacity>
-          <Text className="text-text-dark text-xl font-bold">Categories</Text>
+          <Text className="text-text-dark dark:text-white text-xl font-bold">
+            Categories
+          </Text>
           <TouchableOpacity
             onPress={() => router.push("/notifications")}
-            className="w-10 h-10 bg-white rounded-full items-center justify-center"
+            className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
           >
             <Bell size={20} color="#1A3B34" />
           </TouchableOpacity>
@@ -131,14 +133,14 @@ export default function CategoriesScreen() {
         onRequestClose={() => setShowModal(false)}
       >
         <View className="flex-1 bg-black/50 items-center justify-center px-8">
-          <View className="bg-white rounded-3xl p-8 w-full max-w-sm">
-            <Text className="text-text-dark text-xl font-bold text-center mb-6">
+          <View className="bg-white dark:bg-dark-surface rounded-3xl p-8 w-full max-w-sm">
+            <Text className="text-text-dark dark:text-dark-text text-xl font-bold text-center mb-6">
               New Category
             </Text>
 
             {/* Input Field */}
             <TextInput
-              className="bg-secondary rounded-2xl px-4 py-4 text-base text-text-dark mb-6"
+              className="bg-secondary dark:bg-dark-bg rounded-2xl px-4 py-4 text-base text-text-dark dark:text-dark-text mb-6"
               placeholder="Write..."
               placeholderTextColor="#A8C5BC"
               value={newCategoryName}
@@ -147,7 +149,7 @@ export default function CategoriesScreen() {
 
             {/* Save Button */}
             <TouchableOpacity
-              className="bg-primary rounded-full py-4 mb-3"
+              className="bg-primary dark:bg-dark-primary rounded-full py-4 mb-3"
               onPress={() => {
                 // TODO: Handle category creation
                 setShowModal(false);
@@ -161,13 +163,13 @@ export default function CategoriesScreen() {
 
             {/* Cancel Button */}
             <TouchableOpacity
-              className="bg-secondary rounded-full py-4"
+              className="bg-secondary dark:bg-dark-bg rounded-full py-4"
               onPress={() => {
                 setShowModal(false);
                 setNewCategoryName("");
               }}
             >
-              <Text className="text-text-dark text-center font-semibold text-base">
+              <Text className="text-text-dark dark:text-dark-text text-center font-semibold text-base">
                 Cancel
               </Text>
             </TouchableOpacity>

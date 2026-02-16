@@ -2,13 +2,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft, Bell, Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
-import {
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function DeleteAccountScreen() {
   const router = useRouter();
@@ -27,7 +21,7 @@ export default function DeleteAccountScreen() {
   };
 
   return (
-    <View className="flex-1 bg-primary">
+    <View className="flex-1 bg-primary dark:bg-dark-primary">
       <StatusBar style="light" />
 
       {/* Header */}
@@ -35,47 +29,49 @@ export default function DeleteAccountScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text className="text-text-dark text-xl font-bold">Delete Account</Text>
+        <Text className="text-text-dark dark:text-white text-xl font-bold">
+          Delete Account
+        </Text>
         <TouchableOpacity
           onPress={() => router.push("/notifications")}
-          className="w-10 h-10 bg-white rounded-full items-center justify-center"
+          className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
         >
           <Bell size={20} color="#1A3B34" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 bg-secondary rounded-t-3xl px-6 pt-8">
-        <Text className="text-text-dark text-lg font-bold text-center mb-4">
+      <ScrollView className="flex-1 bg-secondary dark:bg-dark-bg rounded-t-3xl px-6 pt-8">
+        <Text className="text-text-dark dark:text-dark-text text-lg font-bold text-center mb-4">
           Are You Sure You Want To Delete Your Account?
         </Text>
 
-        <View className="bg-white/30 rounded-2xl p-4 mb-6">
-          <Text className="text-text-dark text-sm leading-6 mb-2">
+        <View className="bg-white/30 dark:bg-dark-surface/50 rounded-2xl p-4 mb-6">
+          <Text className="text-text-dark dark:text-dark-text text-sm leading-6 mb-2">
             This action will permanently delete all of your data, and you will
             not be able to recover it. Please keep the following in mind before
             proceeding:
           </Text>
-          <Text className="text-text-dark text-sm leading-6 mb-1">
+          <Text className="text-text-dark dark:text-dark-text text-sm leading-6 mb-1">
             • All your expenses, income and associated transactions will be
             eliminated.
           </Text>
-          <Text className="text-text-dark text-sm leading-6 mb-1">
+          <Text className="text-text-dark dark:text-dark-text text-sm leading-6 mb-1">
             • You will not be able to access your account or any related
             information.
           </Text>
-          <Text className="text-text-dark text-sm leading-6">
+          <Text className="text-text-dark dark:text-dark-text text-sm leading-6">
             • This action cannot be undone.
           </Text>
         </View>
 
-        <Text className="text-text-dark text-base font-semibold text-center mb-4">
+        <Text className="text-text-dark dark:text-dark-text text-base font-semibold text-center mb-4">
           Please Enter Your Password To Confirm Deletion Of Your Account.
         </Text>
 
         {/* Password Input */}
         <View className="mb-8">
-          <View className="flex-row items-center bg-white/50 rounded-2xl px-4">
-            <Text className="flex-1 text-2xl tracking-widest py-4">
+          <View className="flex-row items-center bg-white/50 dark:bg-dark-surface rounded-2xl px-4">
+            <Text className="flex-1 text-text-dark dark:text-dark-text text-2xl tracking-widest py-4">
               {showPassword ? password : "••••••••"}
             </Text>
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>

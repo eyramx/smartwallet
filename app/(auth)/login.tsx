@@ -43,7 +43,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-dark-bg">
       <StatusBar barStyle="dark-content" />
 
       <ScrollView
@@ -53,7 +53,7 @@ export default function LoginScreen() {
       >
         {/* Header */}
         <View className="mt-10 mb-12">
-          <Text className="text-4xl font-bold text-text-dark text-center">
+          <Text className="text-4xl font-bold text-text-dark dark:text-dark-text text-center">
             Welcome
           </Text>
         </View>
@@ -83,7 +83,7 @@ export default function LoginScreen() {
               onPress={() => router.push("/(auth)/forgot-password")}
               className="items-end"
             >
-              <Text className="text-text-dark/60 font-medium">
+              <Text className="text-text-dark/60 dark:text-dark-text-secondary font-medium">
                 Forgot Password?
               </Text>
             </TouchableOpacity>
@@ -100,10 +100,10 @@ export default function LoginScreen() {
 
           {/* Fingerprint / Biometric */}
           <View className="items-center mb-8">
-            <Text className="text-text-dark/60 mb-4 font-medium">
+            <Text className="text-text-dark/60 dark:text-dark-text-secondary mb-4 font-medium">
               Use Fingerprint To Access
             </Text>
-            <TouchableOpacity className="bg-secondary/50 p-4 rounded-full">
+            <TouchableOpacity className="bg-secondary/50 dark:bg-dark-surface p-4 rounded-full">
               <Fingerprint size={32} color="#02C38E" />
             </TouchableOpacity>
           </View>
@@ -125,11 +125,11 @@ export default function LoginScreen() {
 
         {/* Sign Up Link */}
         <View className="flex-1 justify-end items-center mb-4">
-          <Text className="text-text-gray">
+          <Text className="text-text-gray dark:text-dark-text-secondary">
             Don't have an account?{" "}
             <Text
               onPress={() => router.push("/(auth)/sign-up")}
-              className="text-primary font-bold"
+              className="text-primary dark:text-dark-primary font-bold"
             >
               Sign Up
             </Text>
