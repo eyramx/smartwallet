@@ -1,64 +1,65 @@
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { useSignInEmailPassword } from "@nhost/react";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { Fingerprint } from "lucide-react-native";
+import { useState } from "react";
 import {
-  Alert,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signInEmailPassword, isLoading, isSuccess, isError, error } =
-    useSignInEmailPassword();
+  const [isLoading, setIsLoading] = useState(false);
 
+  // TODO: Replace with real Nhost auth when backend is ready
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password");
       return;
     }
 
-    try {
-      const result = await signInEmailPassword(email, password);
-      if (result.error) {
-        Alert.alert("Login Failed", result.error.message);
+    setIsLoading(true);
+
+    // Mock authentication - accept "admin"/"admin"
+    setTimeout(() => {
+      if (email === "admin" && password === "admin") {
+        setIsLoading(false);
+        router.replace("/(tabs)");
+      } else {
+        setIsLoading(false);
+        Alert.alert(
+          "Login Failed",
+          "Invalid credentials. Use email: admin, password: admin",
+        );
       }
-    } catch (e) {
-      Alert.alert("Error", "An unexpected error occurred");
-    }
+    }, 500); // Simulate network delay
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      router.replace("/(tabs)");
-    }
-    if (isError) {
-      Alert.alert(
-        "Login Failed",
-        error?.message || "An unknown error occurred",
-      );
-    }
-  }, [isSuccess, isError, error]);
-
   return (
-    <View className="flex-1 bg-primary">
-      <StatusBar barStyle="light-content" />
+    <View className="flex-1 bg-white dark:bg-dark-bg">
+      <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
-      <View className="pt-16 pb-6 px-6">
-        <Text className="text-3xl font-bold text-text-dark">Log In</Text>
-      </View>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        className="px-6 pt-12 pb-6"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View className="mt-10 mb-12">
+          <Text className="text-4xl font-bold text-text-dark dark:text-dark-text text-center">
+            Welcome
+          </Text>
+        </View>
 
-      {/* Form */}
-      <View className="flex-1 bg-secondary rounded-t-[30px] px-6 pt-8">
-        <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Form */}
+        <View className="mb-6">
           <Input
             label="Email"
             placeholder="example@example.com"
@@ -68,43 +69,73 @@ export default function LoginScreen() {
             autoCapitalize="none"
           />
 
-          <Input
-            label="Password"
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-
-          {/* Forgot Password */}
-          <TouchableOpacity className="items-end mb-6">
-            <Text className="text-text-dark font-semibold">
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
+          <View className="mb-4">
+            <Input
+              label="Password"
+              placeholder="••••••••"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              className="mb-2"
+            />
+            {/* Forgot Password - Aligned relative to password input if needed, or just right aligned */}
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/forgot-password")}
+              className="items-end"
+            >
+              <Text className="text-text-dark/60 dark:text-dark-text-secondary font-medium">
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Login Button */}
           <Button
             title="Log In"
             onPress={handleLogin}
             variant="primary"
-            className="mb-4"
             loading={isLoading}
-            disabled={isLoading}
+            className="mt-4 mb-8"
           />
 
-          {/* Sign Up Link */}
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/sign-up")}
-            className="items-center mb-8"
-          >
-            <Text className="text-text-gray">
-              Don't have an account?{" "}
-              <Text className="text-primary font-semibold">Sign Up</Text>
+          {/* Fingerprint / Biometric */}
+          <View className="items-center mb-8">
+            <Text className="text-text-dark/60 dark:text-dark-text-secondary mb-4 font-medium">
+              Use Fingerprint To Access
             </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
+            <TouchableOpacity className="bg-secondary/50 dark:bg-dark-surface p-4 rounded-full">
+              <Fingerprint size={32} color="#02C38E" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Divider or "Or" (not explicitly asked but common, skipping for now based on strict design list) */}
+
+          {/* Social Login */}
+          <View className="flex-row justify-center space-x-6 mb-8 gap-6">
+            {/* Facebook Placeholder */}
+            <TouchableOpacity className="w-12 h-12 rounded-full border border-gray-200 items-center justify-center">
+              <Text className="font-bold text-blue-600 text-xl">f</Text>
+            </TouchableOpacity>
+            {/* Google Placeholder */}
+            <TouchableOpacity className="w-12 h-12 rounded-full border border-gray-200 items-center justify-center">
+              <Text className="font-bold text-red-500 text-xl">G</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Sign Up Link */}
+        <View className="flex-1 justify-end items-center mb-4">
+          <Text className="text-text-gray dark:text-dark-text-secondary">
+            Don't have an account?{" "}
+            <Text
+              onPress={() => router.push("/(auth)/sign-up")}
+              className="text-primary dark:text-dark-primary font-bold"
+            >
+              Sign Up
+            </Text>
+          </Text>
+        </View>
+      </ScrollView>
     </View>
   );
 }

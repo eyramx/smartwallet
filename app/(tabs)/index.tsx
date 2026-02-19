@@ -61,7 +61,7 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-secondary items-center justify-center">
+      <View className="flex-1 bg-secondary dark:bg-dark-bg items-center justify-center">
         <ActivityIndicator size="large" color="#1A3B34" />
       </View>
     );
@@ -78,22 +78,24 @@ export default function HomeScreen() {
   const transactions = data?.recentTransactions || [];
 
   return (
-    <View className="flex-1 bg-secondary">
+    <View className="flex-1 bg-secondary dark:bg-dark-bg">
       <StatusBar barStyle="light-content" />
 
       {/* Header Section */}
-      <View className="bg-primary pt-12 pb-6 px-6">
+      <View className="bg-primary dark:bg-dark-primary pt-12 pb-6 px-6">
         {/* Greeting & Notification */}
         <View className="flex-row items-center justify-between mb-6">
           <View>
-            <Text className="text-text-dark text-2xl font-bold">
+            <Text className="text-text-dark dark:text-white text-2xl font-bold">
               Hi, Welcome Back
             </Text>
-            <Text className="text-text-dark/70 text-sm">Good Morning</Text>
+            <Text className="text-text-dark/70 dark:text-white/80 text-sm">
+              Good Morning
+            </Text>
           </View>
           <TouchableOpacity
             onPress={() => router.push("/notifications")}
-            className="w-10 h-10 bg-white rounded-full items-center justify-center"
+            className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
           >
             {/* @ts-ignore */}
             <Bell size={20} color="#1A3B34" />
@@ -118,20 +120,24 @@ export default function HomeScreen() {
         <GoalsCard revenueLastWeek="GH₵4,000.00" foodLastWeek="GH₵100.00" />
 
         {/* Period Filter */}
-        <View className="flex-row mb-6 bg-white/50 rounded-full p-1">
+        <View className="flex-row mb-6 bg-white/50 dark:bg-dark-surface/50 rounded-full p-1">
           {(["Daily", "Weekly", "Monthly"] as PeriodFilter[]).map((period) => (
             <TouchableOpacity
               key={period}
               onPress={() => setSelectedPeriod(period)}
               className={cn(
                 "flex-1 py-3 rounded-full items-center",
-                selectedPeriod === period ? "bg-primary" : "bg-transparent",
+                selectedPeriod === period
+                  ? "bg-primary dark:bg-dark-primary"
+                  : "bg-transparent",
               )}
             >
               <Text
                 className={cn(
                   "font-semibold",
-                  selectedPeriod === period ? "text-white" : "text-text-gray",
+                  selectedPeriod === period
+                    ? "text-white"
+                    : "text-text-gray dark:text-dark-text-secondary",
                 )}
               >
                 {period}
@@ -142,7 +148,7 @@ export default function HomeScreen() {
 
         {/* Transactions */}
         <View className="mb-4">
-          <Text className="text-lg font-bold text-text-dark mb-4">
+          <Text className="text-lg font-bold text-text-dark dark:text-white mb-4">
             Recent Transactions
           </Text>
           {transactions.length === 0 ? (

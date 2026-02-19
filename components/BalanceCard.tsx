@@ -48,7 +48,7 @@ export function BalanceCard({
 
         <View className="bg-red-100 px-3 py-1 rounded-full">
           <Text className="text-red-500 text-xs font-bold">
-            {expensePercentage}%
+            {expensePercentage.toFixed(1)}%
           </Text>
         </View>
       </View>

@@ -1,49 +1,74 @@
 import { cn } from "@/lib/utils";
+import { DollarSign } from "lucide-react-native";
 import { Text, View } from "react-native";
 
 interface TransactionCardProps {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  iconBg?: string;
   title: string;
-  time: string;
+  time?: string;
+  date?: string;
   category: string;
   amount: number;
   isExpense?: boolean;
+  type?: "income" | "expense";
 }
 
 export function TransactionCard({
   icon,
+  iconBg = "#60A5FA",
   title,
   time,
+  date,
   category,
   amount,
-  isExpense = false,
+  isExpense,
+  type,
 }: TransactionCardProps) {
+  const timeDate = time && date ? `${time} - ${date}` : time || date || "";
+  const isExpenseType = type === "expense" || isExpense;
+
   const formattedAmount = new Intl.NumberFormat("en-GH", {
     style: "currency",
     currency: "GHS",
   }).format(amount);
 
   return (
-    <View className="flex-row items-center justify-between mb-6 bg-white p-4 rounded-2xl shadow-sm">
-      <View className="flex-row items-center gap-4">
-        {icon}
-        <View>
-          <Text className="text-text-dark font-bold text-base">{title}</Text>
-          <Text className="text-text-gray text-xs">{time}</Text>
-        </View>
+    <View className="mb-3 flex-row items-center rounded-3xl bg-white dark:bg-dark-surface p-4">
+      {/* Icon */}
+      <View
+        className="mr-4 h-14 w-14 items-center justify-center rounded-full"
+        style={{ backgroundColor: iconBg }}
+      >
+        {icon || <DollarSign size={24} color="#fff" />}
       </View>
 
+      {/* Details */}
+      <View className="flex-1">
+        <Text className="mb-1 text-base font-semibold text-text-dark dark:text-dark-text">
+          {title}
+        </Text>
+        {timeDate && (
+          <Text className="text-sm text-text-gray dark:text-dark-text-secondary">
+            {timeDate}
+          </Text>
+        )}
+      </View>
+
+      {/* Category & Amount */}
       <View className="items-end">
+        <Text className="mb-1 text-sm text-text-gray dark:text-dark-text-secondary">
+          {category}
+        </Text>
         <Text
           className={cn(
-            "font-bold text-base",
-            isExpense ? "text-red-500" : "text-green-500",
+            "text-base font-bold",
+            isExpenseType ? "text-red-500" : "text-primary",
           )}
         >
-          {isExpense ? "-" : "+"}
+          {isExpenseType ? "-" : "+"}
           {formattedAmount}
         </Text>
-        <Text className="text-text-gray text-xs">{category}</Text>
       </View>
     </View>
   );
