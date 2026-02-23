@@ -9,10 +9,18 @@ export default function OnboardingStep1() {
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
-      <View className="pt-16 pb-8 px-6">
-        <Text className="text-3xl font-bold text-text-dark text-center">
-          Welcome To{"\n"}Expense Manager
-        </Text>
+      <View className="pt-16 pb-8 px-6 flex-row justify-between items-center">
+        <View className="flex-1">
+          <Text className="text-3xl font-bold text-text-dark text-center">
+            Welcome To{"\n"}Expense Manager
+          </Text>
+        </View>
+        <TouchableOpacity
+          className="absolute top-16 right-6"
+          onPress={() => router.push("/welcome")}
+        >
+          <Text className="text-text-dark font-semibold">Skip</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Content Card */}

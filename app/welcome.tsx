@@ -15,11 +15,10 @@ export default function WelcomeScreen() {
           <TrendingUp size={100} color="#00D9A3" strokeWidth={3} />
           <Text className="text-5xl font-bold text-primary mt-4">FinWise</Text>
         </View>
-
         {/* Subtitle */}
         <Text className="text-text-gray text-center mb-12 px-8">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod.
+          Master your money, plan for the future, and achieve your financial
+          goals with ease.
         </Text>
 
         {/* Buttons */}

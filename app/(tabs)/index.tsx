@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { gql, useQuery } from "@apollo/client";
 import { useRouter } from "expo-router";
 import { Bell, Plus } from "lucide-react-native";
-import { useState } from "react";
+import { useMemo, useState } from "react"; // Added useMemo and useState
 import {
     ActivityIndicator,
     ScrollView,
@@ -19,7 +19,7 @@ import {
 type PeriodFilter = "Daily" | "Weekly" | "Monthly";
 
 const GET_DASHBOARD_DATA = gql`
-  query GetDashboardData {
+  query GetDashboardData($lastWeek: timestamptz!, $filterDate: timestamptz!) {
     recentTransactions: transactions(order_by: { date: desc }, limit: 5) {
       id
       amount
@@ -32,8 +32,11 @@ const GET_DASHBOARD_DATA = gql`
         type
       }
     }
-    incomeStats: transactions_aggregate(
-      where: { category: { type: { _eq: "income" } } }
+    incomePeriod: transactions_aggregate(
+      where: {
+        category: { type: { _eq: "income" } }
+        date: { _gte: $filterDate }
+      }
     ) {
       aggregate {
         sum {
@@ -41,8 +44,35 @@ const GET_DASHBOARD_DATA = gql`
         }
       }
     }
-    expenseStats: transactions_aggregate(
-      where: { category: { type: { _eq: "expense" } } }
+    expensePeriod: transactions_aggregate(
+      where: {
+        category: { type: { _eq: "expense" } }
+        date: { _gte: $filterDate }
+      }
+    ) {
+      aggregate {
+        sum {
+          amount
+        }
+      }
+    }
+    incomeLastWeek: transactions_aggregate(
+      where: {
+        category: { type: { _eq: "income" } }
+        date: { _gte: $lastWeek }
+      }
+    ) {
+      aggregate {
+        sum {
+          amount
+        }
+      }
+    }
+    foodLastWeek: transactions_aggregate(
+      where: {
+        category: { name: { _ilike: "%food%" } }
+        date: { _gte: $lastWeek }
+      }
     ) {
       aggregate {
         sum {
@@ -53,11 +83,40 @@ const GET_DASHBOARD_DATA = gql`
   }
 `;
 
+interface Transaction {
+  id: string;
+  amount: number;
+  description: string;
+  date: string;
+  category?: {
+    name: string;
+    icon: string;
+    color: string;
+    type: string;
+  };
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("Monthly");
 
-  const { data, loading, error, refetch } = useQuery(GET_DASHBOARD_DATA);
+  const lastWeekDate = new Date();
+  lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+
+  const filterDate = useMemo(() => {
+    const date = new Date();
+    if (selectedPeriod === "Daily") date.setHours(0, 0, 0, 0);
+    else if (selectedPeriod === "Weekly") date.setDate(date.getDate() - 7);
+    else if (selectedPeriod === "Monthly") date.setMonth(date.getMonth() - 1);
+    return date.toISOString();
+  }, [selectedPeriod]);
+
+  const { data, loading, error, refetch } = useQuery(GET_DASHBOARD_DATA, {
+    variables: {
+      lastWeek: lastWeekDate.toISOString(),
+      filterDate: filterDate,
+    },
+  });
 
   if (loading) {
     return (
@@ -67,13 +126,16 @@ export default function HomeScreen() {
     );
   }
 
-  // Calculate totals
-  const totalIncome = data?.incomeStats?.aggregate?.sum?.amount || 0;
-  const totalExpense = data?.expenseStats?.aggregate?.sum?.amount || 0;
+  // Calculate totals based on filtered period
+  const totalIncome = data?.incomePeriod?.aggregate?.sum?.amount || 0;
+  const totalExpense = data?.expensePeriod?.aggregate?.sum?.amount || 0;
   const totalBalance = totalIncome - totalExpense;
   const expensePercentage =
     totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
   const targetAmount = 20000.0; // Hardcoded for now, or fetch from settings
+
+  const incomeLastWeek = data?.incomeLastWeek?.aggregate?.sum?.amount || 0;
+  const foodLastWeek = data?.foodLastWeek?.aggregate?.sum?.amount || 0;
 
   const transactions = data?.recentTransactions || [];
 
@@ -117,7 +179,10 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Goals Card */}
-        <GoalsCard revenueLastWeek="GH₵4,000.00" foodLastWeek="GH₵100.00" />
+        <GoalsCard
+          revenueLastWeek={`GH₵${incomeLastWeek.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          foodLastWeek={`GH₵${foodLastWeek.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+        />
 
         {/* Period Filter */}
         <View className="flex-row mb-6 bg-white/50 dark:bg-dark-surface/50 rounded-full p-1">
@@ -156,7 +221,7 @@ export default function HomeScreen() {
               No transactions yet
             </Text>
           ) : (
-            transactions.map((tx: any) => (
+            transactions.map((tx: Transaction) => (
               <TransactionCard
                 key={tx.id}
                 icon={
@@ -164,7 +229,9 @@ export default function HomeScreen() {
                     className="w-12 h-12 rounded-xl items-center justify-center"
                     style={{ backgroundColor: tx.category?.color || "#3b82f6" }}
                   >
-                    <CategoryIcon iconName={tx.category?.icon} />
+                    <CategoryIcon
+                      iconName={tx.category?.icon || "shopping-bag"}
+                    />
                   </View>
                 }
                 title={tx.description}

@@ -34,7 +34,7 @@ export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = ({
       {/* Header */}
       <View className="mb-3 flex-row items-center justify-between">
         <Text className="text-base font-semibold text-text-dark dark:text-dark-text">
-          {budget.category}
+          {budget.category?.name || "Budget"}
         </Text>
         {isNearLimit && (
           <AlertCircle size={20} color={isOverBudget ? "#EF4444" : "#F59E0B"} />
@@ -44,10 +44,10 @@ export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = ({
       {/* Amount */}
       <View className="mb-2 flex-row items-baseline justify-between">
         <Text className="text-2xl font-bold text-text-dark dark:text-dark-text">
-          ${budget.spent.toFixed(2)}
+          GH₵{budget.spent.toFixed(2)}
         </Text>
         <Text className="text-sm text-text-gray dark:text-dark-text-secondary">
-          of ${budget.amount.toFixed(2)}
+          of GH₵{budget.amount.toFixed(2)}
         </Text>
       </View>
 
@@ -65,13 +65,13 @@ export const BudgetProgressCard: React.FC<BudgetProgressCardProps> = ({
           {percentage.toFixed(0)}% used
         </Text>
         <Text className="text-xs text-text-gray">
-          ${(budget.amount - budget.spent).toFixed(2)} remaining
+          GH₵{(budget.amount - budget.spent).toFixed(2)} remaining
         </Text>
       </View>
 
       {isOverBudget && (
         <Text className="mt-2 text-xs text-red-500">
-          You've exceeded your budget by $
+          You've exceeded your budget by GH₵
           {(budget.spent - budget.amount).toFixed(2)}
         </Text>
       )}

@@ -2,20 +2,20 @@ import { Button } from "@/components/Button";
 import { useTransaction } from "@/contexts/TransactionContext";
 import { useRouter } from "expo-router";
 import {
-  ArrowLeft,
-  Calendar,
-  Download,
-  FileSpreadsheet,
-  FileText,
+    ArrowLeft,
+    Calendar,
+    Download,
+    FileSpreadsheet,
+    FileText,
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  Alert,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function ReportsScreen() {
@@ -84,7 +84,7 @@ export default function ReportsScreen() {
 
     Alert.alert(
       "Monthly Financial Report",
-      `Total Income: $${income.toFixed(2)}\nTotal Expenses: $${expenses.toFixed(2)}\nNet Savings: $${savings.toFixed(2)}\nSavings Rate: ${savingsRate}%\n\nTop Spending Categories:\n${topCategories.map(([cat, amt]) => `• ${cat}: $${amt.toFixed(2)}`).join("\n")}`,
+      `Total Income: GH₵${income.toFixed(2)}\nTotal Expenses: GH₵${expenses.toFixed(2)}\nNet Savings: GH₵${savings.toFixed(2)}\nSavings Rate: ${savingsRate}%\n\nTop Spending Categories:\n${topCategories.map(([cat, amt]) => `• ${cat}: GH₵${amt.toFixed(2)}`).join("\n")}`,
       [{ text: "OK" }],
     );
   };
@@ -229,7 +229,7 @@ export default function ReportsScreen() {
                 This Month's Income
               </Text>
               <Text className="text-sm font-semibold text-primary dark:text-dark-primary">
-                $
+                GH₵
                 {transactions
                   .filter((t) => t.type === "income")
                   .reduce((sum, t) => sum + t.amount, 0)
@@ -241,7 +241,7 @@ export default function ReportsScreen() {
                 This Month's Expenses
               </Text>
               <Text className="text-sm font-semibold text-red-500">
-                $
+                GH₵
                 {transactions
                   .filter((t) => t.type === "expense")
                   .reduce((sum, t) => sum + t.amount, 0)

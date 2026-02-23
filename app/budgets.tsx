@@ -15,31 +15,27 @@ import {
     View,
 } from "react-native";
 
-const CATEGORIES = [
-  "Food",
-  "Transport",
-  "Groceries",
-  "Rent",
-  "Gifts",
-  "Medicine",
-  "Entertainment",
-  "Savings",
-  "Other",
-];
+import { useCategory } from "@/contexts/CategoryContext";
 
 export default function BudgetsScreen() {
   const router = useRouter();
-  const { budgets, addBudget, deleteBudget } = useBudget();
+  const {
+    budgets,
+    addBudget,
+    deleteBudget,
+    loading: loadingBudgets,
+  } = useBudget();
+  const { categories, loading: loadingCategories } = useCategory();
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
-    category: "",
+    categoryId: "",
     amount: "",
     period: "monthly" as "monthly" | "weekly",
     alertThreshold: "80",
   });
 
-  const handleAddBudget = () => {
-    if (!formData.category || !formData.amount) {
+  const handleAddBudget = async () => {
+    if (!formData.categoryId || !formData.amount) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -52,8 +48,8 @@ export default function BudgetsScreen() {
       return;
     }
 
-    addBudget({
-      category: formData.category,
+    await addBudget({
+      category_id: formData.categoryId,
       amount,
       period: formData.period,
       alertThreshold: threshold,
@@ -61,7 +57,7 @@ export default function BudgetsScreen() {
 
     setModalVisible(false);
     setFormData({
-      category: "",
+      categoryId: "",
       amount: "",
       period: "monthly",
       alertThreshold: "80",
@@ -124,7 +120,12 @@ export default function BudgetsScreen() {
               <View key={budget.id} className="relative">
                 <BudgetProgressCard budget={budget} />
                 <TouchableOpacity
-                  onPress={() => handleDeleteBudget(budget.id, budget.category)}
+                  onPress={() =>
+                    handleDeleteBudget(
+                      budget.id,
+                      budget.category?.name || "Budget",
+                    )
+                  }
                   className="absolute right-2 top-2 rounded-full bg-red-100 p-2"
                 >
                   <Trash2 size={16} color="#EF4444" />
@@ -157,27 +158,31 @@ export default function BudgetsScreen() {
                 showsHorizontalScrollIndicator={false}
                 className="mb-4"
               >
-                {CATEGORIES.map((cat) => (
-                  <TouchableOpacity
-                    key={cat}
-                    onPress={() =>
-                      setFormData((prev) => ({ ...prev, category: cat }))
-                    }
-                    className={`mr-2 rounded-full px-4 py-2 ${
-                      formData.category === cat ? "bg-primary" : "bg-secondary"
-                    }`}
-                  >
-                    <Text
-                      className={
-                        formData.category === cat
-                          ? "text-white"
-                          : "text-text-dark"
+                {categories
+                  .filter((c) => c.type === "expense")
+                  .map((cat) => (
+                    <TouchableOpacity
+                      key={cat.id}
+                      onPress={() =>
+                        setFormData((prev) => ({ ...prev, categoryId: cat.id }))
                       }
+                      className={`mr-2 rounded-full px-4 py-2 ${
+                        formData.categoryId === cat.id
+                          ? "bg-primary"
+                          : "bg-secondary"
+                      }`}
                     >
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        className={
+                          formData.categoryId === cat.id
+                            ? "text-white"
+                            : "text-text-dark"
+                        }
+                      >
+                        {cat.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
               </ScrollView>
             </View>
 

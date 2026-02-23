@@ -1,12 +1,13 @@
 import { Button } from "@/components/Button";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { Input } from "@/components/Input";
+import { predictCategory } from "@/lib/categorization";
 import { ADD_TRANSACTION, GET_CATEGORIES } from "@/lib/TransactionService";
 import { useMutation, useQuery } from "@apollo/client";
 import { useUserData } from "@nhost/react";
 import { useRouter } from "expo-router";
 import { X } from "lucide-react-native";
-import { useState } from "react";
+import { useState } from "react"; // Added useCallback
 import {
     ActivityIndicator,
     Alert,
@@ -51,6 +52,21 @@ export default function AddTransactionScreen() {
       },
     },
   );
+
+  const handleDescriptionChange = (text: string) => {
+    setDescription(text);
+    if (!selectedCategory && text.length > 2) {
+      const predicted = predictCategory(text);
+      if (predicted && categoryData?.categories) {
+        const matchingCat = categoryData.categories.find(
+          (c) => c.name.toLowerCase() === predicted.toLowerCase(),
+        );
+        if (matchingCat) {
+          setSelectedCategory(matchingCat.id);
+        }
+      }
+    }
+  };
 
   const handleSubmit = () => {
     if (!amount || !description || !selectedCategory) {
@@ -107,7 +123,7 @@ export default function AddTransactionScreen() {
             label="Description"
             placeholder="e.g. Lunch, Taxi, etc."
             value={description}
-            onChangeText={setDescription}
+            onChangeText={handleDescriptionChange}
           />
 
           <Text className="text-text-dark font-medium mb-2 mt-2">Category</Text>
@@ -115,7 +131,7 @@ export default function AddTransactionScreen() {
             <ActivityIndicator />
           ) : (
             <View className="flex-row flex-wrap gap-3 mb-6">
-              {categories.map((cat: any) => (
+              {categories.map((cat: Category) => (
                 <TouchableOpacity
                   key={cat.id}
                   onPress={() => setSelectedCategory(cat.id)}

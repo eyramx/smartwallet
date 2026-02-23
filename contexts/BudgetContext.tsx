@@ -1,22 +1,28 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { ADD_BUDGET, DELETE_BUDGET, GET_BUDGETS } from "@/lib/BudgetService";
+import { useMutation, useQuery } from "@apollo/client";
+import { useUserData } from "@nhost/react";
+import React, { createContext, useContext, useMemo } from "react";
 
 export interface Budget {
   id: string;
-  category: string;
+  category_id: string;
+  category?: {
+    name: string;
+    icon: string;
+    color: string;
+  };
   amount: number;
   spent: number;
   period: "monthly" | "weekly";
-  alertThreshold: number; // percentage (e.g., 80 for 80%)
+  alertThreshold: number;
 }
 
 interface BudgetContextType {
   budgets: Budget[];
-  addBudget: (budget: Omit<Budget, "id" | "spent">) => void;
-  updateBudget: (id: string, updates: Partial<Budget>) => void;
-  deleteBudget: (id: string) => void;
-  getBudgetByCategory: (category: string) => Budget | undefined;
-  updateSpent: (category: string, amount: number) => void;
+  loading: boolean;
+  addBudget: (budget: Omit<Budget, "id" | "spent">) => Promise<void>;
+  deleteBudget: (id: string) => Promise<void>;
+  getBudgetByCategory: (categoryId: string) => Budget | undefined;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -24,77 +30,72 @@ const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
 export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const user = useUserData();
 
-  // Load budgets from storage on mount
-  useEffect(() => {
-    loadBudgets();
-  }, []);
+  const { data, loading, refetch } = useQuery(GET_BUDGETS, {
+    variables: { user_id: user?.id },
+    skip: !user,
+  });
 
-  // Save budgets to storage whenever they change
-  useEffect(() => {
-    saveBudgets();
-  }, [budgets]);
+  const [addBudgetMutation] = useMutation(ADD_BUDGET, {
+    onCompleted: () => refetch(),
+  });
 
-  const loadBudgets = async () => {
-    try {
-      const stored = await AsyncStorage.getItem("budgets");
-      if (stored) {
-        setBudgets(JSON.parse(stored));
-      }
-    } catch (error) {
-      console.error("Failed to load budgets:", error);
-    }
-  };
+  const [deleteBudgetMutation] = useMutation(DELETE_BUDGET, {
+    onCompleted: () => refetch(),
+  });
 
-  const saveBudgets = async () => {
-    try {
-      await AsyncStorage.setItem("budgets", JSON.stringify(budgets));
-    } catch (error) {
-      console.error("Failed to save budgets:", error);
-    }
-  };
-
-  const addBudget = (budget: Omit<Budget, "id" | "spent">) => {
-    const newBudget: Budget = {
-      ...budget,
-      id: Date.now().toString(),
-      spent: 0,
-    };
-    setBudgets((prev) => [...prev, newBudget]);
-  };
-
-  const updateBudget = (id: string, updates: Partial<Budget>) => {
-    setBudgets((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, ...updates } : b)),
+  // Calculate "spent" for each budget
+  const budgets = useMemo(() => {
+    if (!data?.budgets) return [];
+    return data.budgets.map(
+      (b: {
+        id: string;
+        category_id: string;
+        amount: string;
+        period: string;
+        alert_threshold: string;
+        category: any;
+      }) => ({
+        ...b,
+        amount: parseFloat(b.amount),
+        alertThreshold: parseFloat(b.alert_threshold),
+        spent: 0,
+      }),
     );
+  }, [data]);
+
+  const addBudget = async (budget: Omit<Budget, "id" | "spent">) => {
+    if (!user) return;
+    await addBudgetMutation({
+      variables: {
+        category_id: budget.category_id,
+        amount: budget.amount,
+        period: budget.period,
+        alert_threshold: budget.alertThreshold,
+        user_id: user.id,
+      },
+    });
   };
 
-  const deleteBudget = (id: string) => {
-    setBudgets((prev) => prev.filter((b) => b.id !== id));
+  const deleteBudget = async (id: string) => {
+    await deleteBudgetMutation({
+      variables: { id },
+    });
   };
 
-  const getBudgetByCategory = (category: string) => {
-    return budgets.find((b) => b.category === category);
-  };
-
-  const updateSpent = (category: string, amount: number) => {
-    setBudgets((prev) =>
-      prev.map((b) =>
-        b.category === category ? { ...b, spent: b.spent + amount } : b,
-      ),
-    );
+  const getBudgetByCategory = (categoryId: string) => {
+    return budgets.find((b) => b.category_id === categoryId);
   };
 
   return (
     <BudgetContext.Provider
       value={{
         budgets,
+        loading,
         addBudget,
-        updateBudget,
         deleteBudget,
         getBudgetByCategory,
-        updateSpent,
       }}
     >
       {children}
