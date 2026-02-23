@@ -28,7 +28,7 @@ const GOAL_CATEGORIES = [
 
 export default function FinancialGoalsScreen() {
   const router = useRouter();
-  const { goals, addGoal, deleteGoal, contributeToGoal } = useGoal();
+  const { goals, addGoal, deleteGoal, contributeToGoal, loading } = useGoal();
   const [modalVisible, setModalVisible] = useState(false);
   const [contributeModalVisible, setContributeModalVisible] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<FinancialGoal | null>(null);
@@ -54,7 +54,7 @@ export default function FinancialGoalsScreen() {
     setModalVisible(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.targetAmount || !formData.category) {
       Alert.alert("Error", "Please fill in all required fields");
       return;
@@ -71,7 +71,7 @@ export default function FinancialGoalsScreen() {
       ? new Date(formData.deadline)
       : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
-    addGoal({
+    await addGoal({
       name: formData.name,
       targetAmount,
       deadline,
@@ -100,7 +100,7 @@ export default function FinancialGoalsScreen() {
     setContributeModalVisible(true);
   };
 
-  const handleContribute = () => {
+  const handleContribute = async () => {
     if (!selectedGoal) return;
 
     const amount = parseFloat(contributionAmount);
@@ -116,7 +116,7 @@ export default function FinancialGoalsScreen() {
       );
     }
 
-    contributeToGoal(selectedGoal.id, amount);
+    await contributeToGoal(selectedGoal.id, amount);
     setContributeModalVisible(false);
     setSelectedGoal(null);
   };

@@ -28,6 +28,11 @@ export function TransactionCard({
   const timeDate = time && date ? `${time} - ${date}` : time || date || "";
   const isExpenseType = type === "expense" || isExpense;
 
+  const formattedAmount = new Intl.NumberFormat("en-GH", {
+    style: "currency",
+    currency: "GHS",
+  }).format(amount);
+
   return (
     <View className="mb-3 flex-row items-center rounded-3xl bg-white dark:bg-dark-surface p-4">
       {/* Icon */}
@@ -61,7 +66,8 @@ export function TransactionCard({
             isExpenseType ? "text-red-500" : "text-primary",
           )}
         >
-          {isExpenseType ? "-" : "+"}${amount.toFixed(2)}
+          {isExpenseType ? "-" : "+"}
+          {formattedAmount}
         </Text>
       </View>
     </View>

@@ -1,16 +1,14 @@
 import { BalanceCard } from "@/components/BalanceCard";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { GoalsCard } from "@/components/GoalsCard";
 import { TransactionCard } from "@/components/TransactionCard";
 import { cn } from "@/lib/utils";
+import { gql, useQuery } from "@apollo/client";
 import { useRouter } from "expo-router";
+import { Bell, Plus } from "lucide-react-native";
+import { useMemo, useState } from "react"; // Added useMemo and useState
 import {
-    Bell,
-    Briefcase,
-    Home as HomeIcon,
-    ShoppingBag,
-} from "lucide-react-native";
-import { useState } from "react";
-import {
+    ActivityIndicator,
     ScrollView,
     StatusBar,
     Text,
@@ -20,9 +18,121 @@ import {
 
 type PeriodFilter = "Daily" | "Weekly" | "Monthly";
 
+const GET_DASHBOARD_DATA = gql`
+  query GetDashboardData($lastWeek: timestamptz!, $filterDate: timestamptz!) {
+    recentTransactions: transactions(order_by: { date: desc }, limit: 5) {
+      id
+      amount
+      description
+      date
+      category {
+        name
+        icon
+        color
+        type
+      }
+    }
+    incomePeriod: transactions_aggregate(
+      where: {
+        category: { type: { _eq: "income" } }
+        date: { _gte: $filterDate }
+      }
+    ) {
+      aggregate {
+        sum {
+          amount
+        }
+      }
+    }
+    expensePeriod: transactions_aggregate(
+      where: {
+        category: { type: { _eq: "expense" } }
+        date: { _gte: $filterDate }
+      }
+    ) {
+      aggregate {
+        sum {
+          amount
+        }
+      }
+    }
+    incomeLastWeek: transactions_aggregate(
+      where: {
+        category: { type: { _eq: "income" } }
+        date: { _gte: $lastWeek }
+      }
+    ) {
+      aggregate {
+        sum {
+          amount
+        }
+      }
+    }
+    foodLastWeek: transactions_aggregate(
+      where: {
+        category: { name: { _ilike: "%food%" } }
+        date: { _gte: $lastWeek }
+      }
+    ) {
+      aggregate {
+        sum {
+          amount
+        }
+      }
+    }
+  }
+`;
+
+import { useTransaction } from "@/contexts/TransactionContext";
+import { Transaction } from "@/lib/TransactionService";
+
 export default function HomeScreen() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("Monthly");
+
+  const lastWeekDate = new Date();
+  lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+
+  const filterDate = useMemo(() => {
+    const date = new Date();
+    if (selectedPeriod === "Daily") date.setHours(0, 0, 0, 0);
+    else if (selectedPeriod === "Weekly") date.setDate(date.getDate() - 7);
+    else if (selectedPeriod === "Monthly") date.setMonth(date.getMonth() - 1);
+    return date.toISOString();
+  }, [selectedPeriod]);
+
+  const { transactions, loading: loadingTransactions } = useTransaction();
+
+  const {
+    data,
+    loading: loadingDashboard,
+    error,
+    refetch,
+  } = useQuery(GET_DASHBOARD_DATA, {
+    variables: {
+      lastWeek: lastWeekDate.toISOString(),
+      filterDate: filterDate,
+    },
+  });
+
+  if (loadingTransactions || loadingDashboard) {
+    return (
+      <View className="flex-1 bg-secondary dark:bg-dark-bg items-center justify-center">
+        <ActivityIndicator size="large" color="#1A3B34" />
+      </View>
+    );
+  }
+
+  // Calculate totals based on filtered period
+  const totalIncome = data?.incomePeriod?.aggregate?.sum?.amount || 0;
+  const totalExpense = data?.expensePeriod?.aggregate?.sum?.amount || 0;
+  const totalBalance = totalIncome - totalExpense;
+  const expensePercentage =
+    totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
+  const targetAmount = 20000.0; // Hardcoded for now, or fetch from settings
+
+  const incomeLastWeek = data?.incomeLastWeek?.aggregate?.sum?.amount || 0;
+  const foodLastWeek = data?.foodLastWeek?.aggregate?.sum?.amount || 0;
 
   return (
     <View className="flex-1 bg-secondary dark:bg-dark-bg">
@@ -44,16 +154,17 @@ export default function HomeScreen() {
             onPress={() => router.push("/notifications")}
             className="w-10 h-10 bg-white dark:bg-dark-surface rounded-full items-center justify-center"
           >
+            {/* @ts-ignore */}
             <Bell size={20} color="#1A3B34" />
           </TouchableOpacity>
         </View>
 
         {/* Balance Card */}
         <BalanceCard
-          totalBalance={7783.0}
-          totalExpense={1187.4}
-          expensePercentage={30}
-          targetAmount={20000.0}
+          totalBalance={totalBalance}
+          totalExpense={totalExpense}
+          expensePercentage={expensePercentage}
+          targetAmount={targetAmount}
         />
       </View>
 
@@ -63,7 +174,10 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Goals Card */}
-        <GoalsCard revenueLastWeek="GH₵4,000.00" foodLastWeek="GH₵100.00" />
+        <GoalsCard
+          revenueLastWeek={`GH₵${incomeLastWeek.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          foodLastWeek={`GH₵${foodLastWeek.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+        />
 
         {/* Period Filter */}
         <View className="flex-row mb-6 bg-white/50 dark:bg-dark-surface/50 rounded-full p-1">
@@ -93,47 +207,53 @@ export default function HomeScreen() {
         </View>
 
         {/* Transactions */}
-        <TransactionCard
-          icon={
-            <View className="w-12 h-12 bg-blue-500 rounded-xl items-center justify-center">
-              <Briefcase size={24} color="#ffffff" />
-            </View>
-          }
-          title="Salary"
-          time="18:27 - April 30"
-          category="Monthly"
-          amount={4000.0}
-        />
-
-        <TransactionCard
-          icon={
-            <View className="w-12 h-12 bg-blue-400 rounded-xl items-center justify-center">
-              <ShoppingBag size={24} color="#ffffff" />
-            </View>
-          }
-          title="Groceries"
-          time="17:00 - April 24"
-          category="Pantry"
-          amount={100.0}
-          isExpense
-        />
-
-        <TransactionCard
-          icon={
-            <View className="w-12 h-12 bg-blue-600 rounded-xl items-center justify-center">
-              <HomeIcon size={24} color="#ffffff" />
-            </View>
-          }
-          title="Rent"
-          time="8:30 - April 15"
-          category="Rent"
-          amount={674.4}
-          isExpense
-        />
-
-        {/* Bottom Spacing */}
-        <View className="h-24" />
+        <View className="mb-4">
+          <Text className="text-lg font-bold text-text-dark dark:text-white mb-4">
+            Recent Transactions
+          </Text>
+          {transactions.length === 0 ? (
+            <Text className="text-text-gray text-center py-8">
+              No transactions yet
+            </Text>
+          ) : (
+            transactions.slice(0, 5).map((tx: Transaction) => (
+              <TransactionCard
+                key={tx.id}
+                icon={
+                  <View
+                    className="w-12 h-12 rounded-xl items-center justify-center"
+                    style={{ backgroundColor: tx.category.color }}
+                  >
+                    <CategoryIcon iconName={tx.category.icon} />
+                  </View>
+                }
+                title={tx.description}
+                time={
+                  new Date(tx.date).toLocaleDateString() +
+                  " " +
+                  new Date(tx.date).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                }
+                category={tx.category.name}
+                amount={tx.amount}
+                isExpense={tx.category.type === "expense"}
+              />
+            ))
+          )}
+        </View>
       </ScrollView>
+
+      {/* FAB */}
+      <TouchableOpacity
+        onPress={() => router.push("/add-transaction" as any)}
+        className="absolute bottom-8 right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg"
+        style={{ elevation: 5 }}
+      >
+        {/* @ts-ignore */}
+        <Plus size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }

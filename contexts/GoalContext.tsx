@@ -1,5 +1,12 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import {
+    ADD_GOAL,
+    DELETE_GOAL,
+    GET_GOALS,
+    UPDATE_GOAL_CONTRIBUTION,
+} from "@/lib/GoalService";
+import { useMutation, useQuery } from "@apollo/client";
+import { useUserData } from "@nhost/react";
+import React, { createContext, useContext, useMemo } from "react";
 
 export interface FinancialGoal {
   id: string;
@@ -14,124 +21,98 @@ export interface FinancialGoal {
 
 interface GoalContextType {
   goals: FinancialGoal[];
-  addGoal: (goal: Omit<FinancialGoal, "id" | "currentAmount">) => void;
-  updateGoal: (id: string, updates: Partial<FinancialGoal>) => void;
-  deleteGoal: (id: string) => void;
-  contributeToGoal: (id: string, amount: number) => void;
+  loading: boolean;
+  addGoal: (goal: Omit<FinancialGoal, "id" | "currentAmount">) => Promise<void>;
+  contributeToGoal: (id: string, amount: number) => Promise<void>;
+  deleteGoal: (id: string) => Promise<void>;
 }
 
 const GoalContext = createContext<GoalContextType | undefined>(undefined);
 
-const MOCK_GOALS: FinancialGoal[] = [
-  {
-    id: "1",
-    name: "Vacation to Paris",
-    targetAmount: 5000,
-    currentAmount: 1500,
-    deadline: new Date("2026-12-31"),
-    category: "Travel",
-    color: "#FF6B6B",
-    icon: "plane",
-  },
-  {
-    id: "2",
-    name: "New Car",
-    targetAmount: 25000,
-    currentAmount: 8500,
-    deadline: new Date("2027-06-30"),
-    category: "Vehicle",
-    color: "#4ECDC4",
-    icon: "car",
-  },
-  {
-    id: "3",
-    name: "Emergency Fund",
-    targetAmount: 10000,
-    currentAmount: 6200,
-    deadline: new Date("2026-08-31"),
-    category: "Savings",
-    color: "#A8E6CF",
-    icon: "shield",
-  },
-];
-
 export const GoalProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [goals, setGoals] = useState<FinancialGoal[]>(MOCK_GOALS);
+  const user = useUserData();
 
-  useEffect(() => {
-    loadGoals();
-  }, []);
+  const { data, loading, refetch } = useQuery(GET_GOALS, {
+    variables: { user_id: user?.id },
+    skip: !user,
+  });
 
-  useEffect(() => {
-    saveGoals();
-  }, [goals]);
+  const [addGoalMutation] = useMutation(ADD_GOAL, {
+    onCompleted: () => refetch(),
+  });
 
-  const loadGoals = async () => {
-    try {
-      const stored = await AsyncStorage.getItem("financialGoals");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const withDates = parsed.map((g: any) => ({
-          ...g,
-          deadline: new Date(g.deadline),
-        }));
-        setGoals(withDates);
-      }
-    } catch (error) {
-      console.error("Failed to load goals:", error);
-    }
-  };
+  const [updateGoalMutation] = useMutation(UPDATE_GOAL_CONTRIBUTION, {
+    onCompleted: () => refetch(),
+  });
 
-  const saveGoals = async () => {
-    try {
-      await AsyncStorage.setItem("financialGoals", JSON.stringify(goals));
-    } catch (error) {
-      console.error("Failed to save goals:", error);
-    }
-  };
+  const [deleteGoalMutation] = useMutation(DELETE_GOAL, {
+    onCompleted: () => refetch(),
+  });
 
-  const addGoal = (goal: Omit<FinancialGoal, "id" | "currentAmount">) => {
-    const newGoal: FinancialGoal = {
-      ...goal,
-      id: Date.now().toString(),
-      currentAmount: 0,
-    };
-    setGoals((prev) => [...prev, newGoal]);
-  };
-
-  const updateGoal = (id: string, updates: Partial<FinancialGoal>) => {
-    setGoals((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, ...updates } : g)),
+  const goals = useMemo(() => {
+    if (!data?.financial_goals) return [];
+    return data.financial_goals.map(
+      (g: {
+        id: string;
+        name: string;
+        target_amount: string;
+        current_amount: string;
+        deadline: string;
+        category: string;
+        color: string;
+        icon: string;
+      }) => ({
+        ...g,
+        targetAmount: parseFloat(g.target_amount),
+        currentAmount: parseFloat(g.current_amount),
+        deadline: g.deadline ? new Date(g.deadline) : null,
+      }),
     );
+  }, [data]);
+
+  const addGoal = async (goal: Omit<FinancialGoal, "id" | "currentAmount">) => {
+    if (!user) return;
+    await addGoalMutation({
+      variables: {
+        name: goal.name,
+        target_amount: goal.targetAmount,
+        deadline: goal.deadline?.toISOString(),
+        category: goal.category,
+        color: goal.color,
+        icon: goal.icon,
+        user_id: user.id,
+      },
+    });
   };
 
-  const deleteGoal = (id: string) => {
-    setGoals((prev) => prev.filter((g) => g.id !== id));
+  const contributeToGoal = async (id: string, amount: number) => {
+    const goal = goals.find((g) => g.id === id);
+    if (!goal) return;
+
+    await updateGoalMutation({
+      variables: {
+        id,
+        current_amount: goal.currentAmount + amount,
+      },
+    });
   };
 
-  const contributeToGoal = (id: string, amount: number) => {
-    setGoals((prev) =>
-      prev.map((g) =>
-        g.id === id
-          ? {
-              ...g,
-              currentAmount: Math.min(g.currentAmount + amount, g.targetAmount),
-            }
-          : g,
-      ),
-    );
+  const deleteGoal = async (id: string) => {
+    await deleteGoalMutation({
+      variables: { id },
+    });
   };
 
   return (
     <GoalContext.Provider
       value={{
         goals,
+        loading,
         addGoal,
-        updateGoal,
-        deleteGoal,
         contributeToGoal,
+        deleteGoal,
       }}
     >
       {children}

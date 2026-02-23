@@ -1,0 +1,47 @@
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: @nhost/react-apollo@18.0.2
+npm error Found: react@19.1.0
+npm error node_modules/react
+npm error   peerOptional react@"^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc" from @apollo/client@3.14.0
+npm error   node_modules/@apollo/client
+npm error     peer @apollo/client@"^3.7.10" from @nhost/apollo@9.0.1
+npm error     node_modules/@nhost/apollo
+npm error       @nhost/apollo@"9.0.1" from @nhost/react-apollo@18.0.2
+npm error       node_modules/@nhost/react-apollo
+npm error         @nhost/react-apollo@"^18.0.2" from the root project
+npm error     peer @apollo/client@"^3.7.10" from @nhost/react-apollo@18.0.2
+npm error     node_modules/@nhost/react-apollo
+npm error       @nhost/react-apollo@"^18.0.2" from the root project
+npm error     1 more (the root project)
+npm error   peerOptional react@"*" from @expo/devtools@0.1.8
+npm error   node_modules/@expo/devtools
+npm error     @expo/devtools@"0.1.8" from expo@54.0.32
+npm error     node_modules/expo
+npm error       peerOptional expo@"*" from @expo/metro-config@54.0.14
+npm error       node_modules/@expo/metro-config
+npm error         @expo/metro-config@"54.0.14" from expo@54.0.32
+npm error         1 more (@expo/cli)
+npm error       17 more (@expo/metro-runtime, @expo/prebuild-config, ...)
+npm error   67 more (@expo/metro-runtime, @expo/vector-icons, @nhost/react, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^17.0.0 || ^18.0.0" from @nhost/react-apollo@18.0.2
+npm error node_modules/@nhost/react-apollo
+npm error   @nhost/react-apollo@"^18.0.2" from the root project
+npm error
+npm error Conflicting peer dependency: react@18.3.1
+npm error node_modules/react
+npm error   peer react@"^17.0.0 || ^18.0.0" from @nhost/react-apollo@18.0.2
+npm error   node_modules/@nhost/react-apollo
+npm error     @nhost/react-apollo@"^18.0.2" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\Kay\AppData\Local\npm-cache\_logs\2026-02-17T11_39_10_419Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\Kay\AppData\Local\npm-cache\_logs\2026-02-17T11_39_10_419Z-debug-0.log

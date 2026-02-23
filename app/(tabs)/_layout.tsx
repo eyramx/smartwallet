@@ -1,9 +1,14 @@
 import { Tabs } from "expo-router";
-import { BarChart3, Home, Layers, User } from "lucide-react-native";
+import { BarChart3, Home, Layers, List, User } from "lucide-react-native";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { useTheme } from "@/contexts/ThemeContext";
+
+// Placeholder for IconSymbol if it's custom, otherwise using Lucide List for Transactions
+// Benny used IconSymbol, Master uses Lucide. I'll use Lucide List for consistency if IconSymbol isn't imported.
+// Wait, Benny imported IconSymbol? The diff showed <IconSymbol ... /> but didn't show import.
+// I'll check imports again. If IconSymbol is missing, I'll use List from lucide-react-native.
 
 export default function TabLayout() {
   const { isDarkMode } = useTheme();
@@ -34,6 +39,13 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <Home size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="transactions"
+        options={{
+          title: "Transactions",
+          tabBarIcon: ({ color }) => <List size={28} color={color} />,
         }}
       />
       <Tabs.Screen

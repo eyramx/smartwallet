@@ -1,20 +1,23 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useEffect, useState } from "react";
-
-export interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  date: Date;
-  type: "income" | "expense";
-}
+import { useMutation, useQuery } from "@apollo/client";
+import { useUserId } from "@nhost/react";
+import React, { createContext, useContext, useMemo } from "react";
+import {
+  ADD_TRANSACTION,
+  DELETE_TRANSACTION,
+  GET_ALL_TRANSACTIONS,
+  Transaction,
+} from "../lib/TransactionService";
 
 interface TransactionContextType {
   transactions: Transaction[];
-  addTransaction: (transaction: Omit<Transaction, "id">) => void;
-  updateTransaction: (id: string, updates: Partial<Transaction>) => void;
-  deleteTransaction: (id: string) => void;
+  loading: boolean;
+  addTransaction: (transaction: {
+    amount: number;
+    description: string;
+    date: Date;
+    category_id: string;
+  }) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
   filterTransactions: (filters: TransactionFilters) => Transaction[];
   searchTransactions: (query: string) => Transaction[];
 }
@@ -32,131 +35,77 @@ const TransactionContext = createContext<TransactionContextType | undefined>(
   undefined,
 );
 
-// Mock data for development
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "1",
-    description: "Grocery Shopping",
-    amount: 125.5,
-    category: "Groceries",
-    date: new Date("2026-02-10"),
-    type: "expense",
-  },
-  {
-    id: "2",
-    description: "Salary",
-    amount: 3500,
-    category: "Income",
-    date: new Date("2026-02-01"),
-    type: "income",
-  },
-  {
-    id: "3",
-    description: "Uber Ride",
-    amount: 25.3,
-    category: "Transport",
-    date: new Date("2026-02-09"),
-    type: "expense",
-  },
-  {
-    id: "4",
-    description: "Restaurant Dinner",
-    amount: 85.0,
-    category: "Food",
-    date: new Date("2026-02-08"),
-    type: "expense",
-  },
-  {
-    id: "5",
-    description: "Netflix Subscription",
-    amount: 15.99,
-    category: "Entertainment",
-    date: new Date("2026-02-05"),
-    type: "expense",
-  },
-];
-
 export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const userId = useUserId();
+  const { data, loading, refetch } = useQuery<{ transactions: Transaction[] }>(
+    GET_ALL_TRANSACTIONS,
+  );
+  const [insertTransaction] = useMutation(ADD_TRANSACTION);
+  const [removeTransaction] = useMutation(DELETE_TRANSACTION);
 
-  useEffect(() => {
-    loadTransactions();
-  }, []);
+  const transactions = useMemo(() => data?.transactions || [], [data]);
 
-  useEffect(() => {
-    saveTransactions();
-  }, [transactions]);
-
-  const loadTransactions = async () => {
+  const addTransaction = async (transaction: {
+    amount: number;
+    description: string;
+    date: Date;
+    category_id: string;
+  }) => {
     try {
-      const stored = await AsyncStorage.getItem("transactions");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Convert date strings back to Date objects
-        const withDates = parsed.map((t: any) => ({
-          ...t,
-          date: new Date(t.date),
-        }));
-        setTransactions(withDates);
-      }
+      await insertTransaction({
+        variables: {
+          ...transaction,
+          date: transaction.date.toISOString(),
+          user_id: userId,
+        },
+      });
+      await refetch();
     } catch (error) {
-      console.error("Failed to load transactions:", error);
+      console.error("Failed to add transaction:", error);
+      throw error;
     }
   };
 
-  const saveTransactions = async () => {
+  const deleteTransaction = async (id: string) => {
     try {
-      await AsyncStorage.setItem("transactions", JSON.stringify(transactions));
+      await removeTransaction({
+        variables: { id },
+      });
+      await refetch();
     } catch (error) {
-      console.error("Failed to save transactions:", error);
+      console.error("Failed to delete transaction:", error);
+      throw error;
     }
-  };
-
-  const addTransaction = (transaction: Omit<Transaction, "id">) => {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: Date.now().toString(),
-    };
-    setTransactions((prev) => [newTransaction, ...prev]);
-  };
-
-  const updateTransaction = (id: string, updates: Partial<Transaction>) => {
-    setTransactions((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...updates } : t)),
-    );
-  };
-
-  const deleteTransaction = (id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
 
   const filterTransactions = (filters: TransactionFilters): Transaction[] => {
     let filtered = [...transactions];
 
     if (filters.category) {
-      filtered = filtered.filter((t) => t.category === filters.category);
+      filtered = filtered.filter((t) => t.category.name === filters.category);
     }
 
     if (filters.type) {
-      filtered = filtered.filter((t) => t.type === filters.type);
+      filtered = filtered.filter((t) => t.category.type === filters.type);
     }
 
     if (filters.startDate) {
-      filtered = filtered.filter((t) => t.date >= filters.startDate!);
+      filtered = filtered.filter((t) => new Date(t.date) >= filters.startDate!);
     }
 
     if (filters.endDate) {
-      filtered = filtered.filter((t) => t.date <= filters.endDate!);
+      filtered = filtered.filter((t) => new Date(t.date) <= filters.endDate!);
     }
 
     // Sorting
     if (filters.sortBy) {
       filtered.sort((a, b) => {
-        const aValue = filters.sortBy === "date" ? a.date.getTime() : a.amount;
-        const bValue = filters.sortBy === "date" ? b.date.getTime() : b.amount;
+        const aValue =
+          filters.sortBy === "date" ? new Date(a.date).getTime() : a.amount;
+        const bValue =
+          filters.sortBy === "date" ? new Date(b.date).getTime() : b.amount;
 
         return filters.sortOrder === "asc"
           ? aValue > bValue
@@ -176,7 +125,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     return transactions.filter(
       (t) =>
         t.description.toLowerCase().includes(lowerQuery) ||
-        t.category.toLowerCase().includes(lowerQuery),
+        t.category.name.toLowerCase().includes(lowerQuery),
     );
   };
 
@@ -184,8 +133,8 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     <TransactionContext.Provider
       value={{
         transactions,
+        loading,
         addTransaction,
-        updateTransaction,
         deleteTransaction,
         filterTransactions,
         searchTransactions,

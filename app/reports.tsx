@@ -2,20 +2,20 @@ import { Button } from "@/components/Button";
 import { useTransaction } from "@/contexts/TransactionContext";
 import { useRouter } from "expo-router";
 import {
-  ArrowLeft,
-  Calendar,
-  Download,
-  FileSpreadsheet,
-  FileText,
+    ArrowLeft,
+    Calendar,
+    Download,
+    FileSpreadsheet,
+    FileText,
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  Alert,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function ReportsScreen() {
@@ -28,10 +28,10 @@ export default function ReportsScreen() {
   const generateCSV = () => {
     const headers = ["Date", "Description", "Category", "Type", "Amount"];
     const data = transactions.map((t) => [
-      t.date.toLocaleDateString(),
+      new Date(t.date).toLocaleDateString(),
       t.description,
-      t.category,
-      t.type,
+      t.category.name,
+      t.category.type,
       t.amount.toFixed(2),
     ]);
 
@@ -57,11 +57,11 @@ export default function ReportsScreen() {
 
   const generateMonthlyReport = () => {
     const income = transactions
-      .filter((t) => t.type === "income")
+      .filter((t) => t.category.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const expenses = transactions
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.category.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const savings = income - expenses;
@@ -69,10 +69,10 @@ export default function ReportsScreen() {
       income > 0 ? ((savings / income) * 100).toFixed(1) : "0";
 
     const categoryBreakdown = transactions
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.category.type === "expense")
       .reduce(
         (acc, t) => {
-          acc[t.category] = (acc[t.category] || 0) + t.amount;
+          acc[t.category.name] = (acc[t.category.name] || 0) + t.amount;
           return acc;
         },
         {} as Record<string, number>,
@@ -84,7 +84,7 @@ export default function ReportsScreen() {
 
     Alert.alert(
       "Monthly Financial Report",
-      `Total Income: $${income.toFixed(2)}\nTotal Expenses: $${expenses.toFixed(2)}\nNet Savings: $${savings.toFixed(2)}\nSavings Rate: ${savingsRate}%\n\nTop Spending Categories:\n${topCategories.map(([cat, amt]) => `• ${cat}: $${amt.toFixed(2)}`).join("\n")}`,
+      `Total Income: GH₵${income.toFixed(2)}\nTotal Expenses: GH₵${expenses.toFixed(2)}\nNet Savings: GH₵${savings.toFixed(2)}\nSavings Rate: ${savingsRate}%\n\nTop Spending Categories:\n${topCategories.map(([cat, amt]) => `• ${cat}: GH₵${amt.toFixed(2)}`).join("\n")}`,
       [{ text: "OK" }],
     );
   };
@@ -229,9 +229,9 @@ export default function ReportsScreen() {
                 This Month's Income
               </Text>
               <Text className="text-sm font-semibold text-primary dark:text-dark-primary">
-                $
+                GH₵
                 {transactions
-                  .filter((t) => t.type === "income")
+                  .filter((t) => t.category.type === "income")
                   .reduce((sum, t) => sum + t.amount, 0)
                   .toFixed(2)}
               </Text>
@@ -241,9 +241,9 @@ export default function ReportsScreen() {
                 This Month's Expenses
               </Text>
               <Text className="text-sm font-semibold text-red-500">
-                $
+                GH₵
                 {transactions
-                  .filter((t) => t.type === "expense")
+                  .filter((t) => t.category.type === "expense")
                   .reduce((sum, t) => sum + t.amount, 0)
                   .toFixed(2)}
               </Text>

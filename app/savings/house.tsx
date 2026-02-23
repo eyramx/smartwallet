@@ -1,3 +1,4 @@
+import { useGoal } from "@/contexts/GoalContext";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft, Calendar, Home } from "lucide-react-native";
@@ -5,6 +6,12 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function HouseSavingsScreen() {
   const router = useRouter();
+  const { goals } = useGoal();
+
+  const goal = goals.find((g) => g.name.toLowerCase().includes("house"));
+  const targetAmount = goal?.targetAmount || 569200;
+  const currentAmount = goal?.currentAmount || 0;
+  const percentage = Math.min((currentAmount / targetAmount) * 100, 100);
 
   return (
     <View className="flex-1 bg-primary">
@@ -30,11 +37,11 @@ export default function HouseSavingsScreen() {
             <View>
               <Text className="text-sm text-text-gray mb-2">Goal</Text>
               <Text className="text-2xl font-bold text-text-dark">
-                GH₵569,200
+                GH₵{targetAmount.toLocaleString()}
               </Text>
               <Text className="text-sm text-text-gray mt-2">Amount Saved</Text>
               <Text className="text-xl font-semibold text-primary">
-                GH₵625.48
+                GH₵{currentAmount.toLocaleString()}
               </Text>
             </View>
             <View className="w-24 h-24 rounded-2xl bg-blue-400 items-center justify-center">
@@ -43,13 +50,15 @@ export default function HouseSavingsScreen() {
             </View>
           </View>
 
-          {/* Progress Bar */}
           <View className="mb-4">
             <View className="bg-gray-200 h-3 rounded-full overflow-hidden">
-              <View className="bg-primary h-full" style={{ width: "30%" }} />
+              <View
+                className="bg-primary h-full"
+                style={{ width: `${percentage}%` }}
+              />
             </View>
             <Text className="text-sm text-text-gray mt-2">
-              ✓ 30% Of Your Expenses, Looks Good.
+              ✓ {percentage.toFixed(0)}% Of Your Goal Achieved.
             </Text>
           </View>
         </View>

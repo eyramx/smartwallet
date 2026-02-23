@@ -11,7 +11,7 @@ export default function OnboardingStep2() {
       {/* Header */}
       <View className="pt-16 pb-8 px-6">
         <Text className="text-3xl font-bold text-text-dark text-center">
-          ¿Are You Ready To{"\n"}Take Control Of{"\n"}Your Finaces?
+          Are You Ready To{"\n"}Take Control Of{"\n"}Your Finances?
         </Text>
       </View>
 
@@ -25,9 +25,18 @@ export default function OnboardingStep2() {
         </View>
 
         {/* Navigation */}
-        <View className="w-full">
+        <View className="w-full flex-row gap-4">
           <TouchableOpacity
-            className="bg-primary rounded-full py-4"
+            className="flex-1 bg-white/20 rounded-full py-4 border border-white/30"
+            onPress={() => router.push("/onboarding/step-1")}
+            activeOpacity={0.8}
+          >
+            <Text className="text-text-dark text-center font-bold text-lg">
+              Back
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="flex-1 bg-primary rounded-full py-4"
             onPress={() => router.replace("/welcome")}
             activeOpacity={0.8}
           >
@@ -35,12 +44,12 @@ export default function OnboardingStep2() {
               Next
             </Text>
           </TouchableOpacity>
+        </View>
 
-          {/* Pagination dots */}
-          <View className="flex-row justify-center mt-4 gap-2">
-            <View className="w-3 h-3 rounded-full bg-gray-300" />
-            <View className="w-3 h-3 rounded-full bg-primary" />
-          </View>
+        {/* Pagination dots */}
+        <View className="flex-row justify-center mt-4 gap-2">
+          <View className="w-3 h-3 rounded-full bg-gray-300" />
+          <View className="w-3 h-3 rounded-full bg-primary" />
         </View>
       </View>
     </View>

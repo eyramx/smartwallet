@@ -10,13 +10,7 @@ import {
     User,
 } from "lucide-react-native";
 import { useState } from "react";
-import {
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface ProfileMenuItemProps {
   icon: React.ReactNode;
@@ -44,10 +38,12 @@ function ProfileMenuItem({ icon, label, onPress }: ProfileMenuItemProps) {
 export default function ProfileScreen() {
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { signOut } = useSignOut();
+  const user = useUserData();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setShowLogoutModal(false);
-    // TODO: Clear auth state
+    await signOut();
     router.replace("/welcome");
   };
 
@@ -78,9 +74,11 @@ export default function ProfileScreen() {
             <View className="w-full h-full bg-gray-400" />
           </View>
           <Text className="text-text-dark text-2xl font-bold mb-1">
-            John Smith
+            {user?.displayName || "User"}
           </Text>
-          <Text className="text-text-gray text-sm">ID: 25030024</Text>
+          <Text className="text-text-gray text-sm">
+            ID: {user?.id.substring(0, 8).toUpperCase()}
+          </Text>
         </View>
 
         {/* Menu Items */}
