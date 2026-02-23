@@ -1,13 +1,14 @@
 import { Button } from "@/components/Button";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { Input } from "@/components/Input";
+import { useTransaction } from "@/contexts/TransactionContext";
 import { predictCategory } from "@/lib/categorization";
-import { ADD_TRANSACTION, GET_CATEGORIES } from "@/lib/TransactionService";
-import { useMutation, useQuery } from "@apollo/client";
+import { GET_CATEGORIES } from "@/lib/TransactionService";
+import { useQuery } from "@apollo/client";
 import { useUserData } from "@nhost/react";
 import { useRouter } from "expo-router";
 import { X } from "lucide-react-native";
-import { useState } from "react"; // Added useCallback
+import { useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -37,21 +38,11 @@ export default function AddTransactionScreen() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { addTransaction: saveTransaction } = useTransaction();
+  const [submitting, setSubmitting] = useState(false);
 
   const { data: categoryData, loading: loadingCategories } =
     useQuery<GetCategoriesData>(GET_CATEGORIES);
-  const [addTransaction, { loading: submitting }] = useMutation(
-    ADD_TRANSACTION,
-    {
-      refetchQueries: ["GetDashboardData"],
-      onCompleted: () => {
-        router.back();
-      },
-      onError: (error) => {
-        Alert.alert("Error", error.message);
-      },
-    },
-  );
 
   const handleDescriptionChange = (text: string) => {
     setDescription(text);
@@ -59,7 +50,7 @@ export default function AddTransactionScreen() {
       const predicted = predictCategory(text);
       if (predicted && categoryData?.categories) {
         const matchingCat = categoryData.categories.find(
-          (c) => c.name.toLowerCase() === predicted.toLowerCase(),
+          (c: Category) => c.name.toLowerCase() === predicted.toLowerCase(),
         );
         if (matchingCat) {
           setSelectedCategory(matchingCat.id);
@@ -68,7 +59,7 @@ export default function AddTransactionScreen() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!amount || !description || !selectedCategory) {
       Alert.alert("Error", "Please fill in all fields");
       return;
@@ -79,15 +70,20 @@ export default function AddTransactionScreen() {
       return;
     }
 
-    addTransaction({
-      variables: {
+    setSubmitting(true);
+    try {
+      await saveTransaction({
         amount: parseFloat(amount),
         description,
-        date: new Date().toISOString(),
+        date: new Date(),
         category_id: selectedCategory,
-        user_id: user.id,
-      },
-    });
+      });
+      router.back();
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const categories = categoryData?.categories || [];

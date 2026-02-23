@@ -1,5 +1,44 @@
 import { gql } from "@apollo/client";
 
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  type: "income" | "expense";
+}
+
+export interface Transaction {
+  id: string;
+  amount: number;
+  description: string;
+  date: string;
+  category: Category;
+}
+
+export const CATEGORY_FRAGMENT = gql`
+  fragment CategoryFields on categories {
+    id
+    name
+    icon
+    color
+    type
+  }
+`;
+
+export const TRANSACTION_FRAGMENT = gql`
+  fragment TransactionFields on transactions {
+    id
+    amount
+    description
+    date
+    category {
+      ...CategoryFields
+    }
+  }
+  ${CATEGORY_FRAGMENT}
+`;
+
 export const ADD_TRANSACTION = gql`
   mutation AddTransaction(
     $amount: numeric!
@@ -37,19 +76,12 @@ export const GET_CATEGORIES = gql`
 export const GET_ALL_TRANSACTIONS = gql`
   query GetAllTransactions {
     transactions(order_by: { date: desc }) {
-      id
-      amount
-      description
-      date
-      category {
-        name
-        icon
-        color
-        type
-      }
+      ...TransactionFields
     }
   }
+  ${TRANSACTION_FRAGMENT}
 `;
+// Jonah: Standardized Transaction types.
 
 export const DELETE_TRANSACTION = gql`
   mutation DeleteTransaction($id: uuid!) {

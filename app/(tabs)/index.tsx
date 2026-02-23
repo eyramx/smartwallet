@@ -83,18 +83,8 @@ const GET_DASHBOARD_DATA = gql`
   }
 `;
 
-interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  date: string;
-  category?: {
-    name: string;
-    icon: string;
-    color: string;
-    type: string;
-  };
-}
+import { useTransaction } from "@/contexts/TransactionContext";
+import { Transaction } from "@/lib/TransactionService";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -111,14 +101,21 @@ export default function HomeScreen() {
     return date.toISOString();
   }, [selectedPeriod]);
 
-  const { data, loading, error, refetch } = useQuery(GET_DASHBOARD_DATA, {
+  const { transactions, loading: loadingTransactions } = useTransaction();
+
+  const {
+    data,
+    loading: loadingDashboard,
+    error,
+    refetch,
+  } = useQuery(GET_DASHBOARD_DATA, {
     variables: {
       lastWeek: lastWeekDate.toISOString(),
       filterDate: filterDate,
     },
   });
 
-  if (loading) {
+  if (loadingTransactions || loadingDashboard) {
     return (
       <View className="flex-1 bg-secondary dark:bg-dark-bg items-center justify-center">
         <ActivityIndicator size="large" color="#1A3B34" />
@@ -136,8 +133,6 @@ export default function HomeScreen() {
 
   const incomeLastWeek = data?.incomeLastWeek?.aggregate?.sum?.amount || 0;
   const foodLastWeek = data?.foodLastWeek?.aggregate?.sum?.amount || 0;
-
-  const transactions = data?.recentTransactions || [];
 
   return (
     <View className="flex-1 bg-secondary dark:bg-dark-bg">
@@ -221,17 +216,15 @@ export default function HomeScreen() {
               No transactions yet
             </Text>
           ) : (
-            transactions.map((tx: Transaction) => (
+            transactions.slice(0, 5).map((tx: Transaction) => (
               <TransactionCard
                 key={tx.id}
                 icon={
                   <View
                     className="w-12 h-12 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: tx.category?.color || "#3b82f6" }}
+                    style={{ backgroundColor: tx.category.color }}
                   >
-                    <CategoryIcon
-                      iconName={tx.category?.icon || "shopping-bag"}
-                    />
+                    <CategoryIcon iconName={tx.category.icon} />
                   </View>
                 }
                 title={tx.description}
@@ -243,9 +236,9 @@ export default function HomeScreen() {
                     minute: "2-digit",
                   })
                 }
-                category={tx.category?.name || "Uncategorized"}
+                category={tx.category.name}
                 amount={tx.amount}
-                isExpense={tx.category?.type === "expense"}
+                isExpense={tx.category.type === "expense"}
               />
             ))
           )}

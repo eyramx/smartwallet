@@ -28,10 +28,10 @@ export default function ReportsScreen() {
   const generateCSV = () => {
     const headers = ["Date", "Description", "Category", "Type", "Amount"];
     const data = transactions.map((t) => [
-      t.date.toLocaleDateString(),
+      new Date(t.date).toLocaleDateString(),
       t.description,
-      t.category,
-      t.type,
+      t.category.name,
+      t.category.type,
       t.amount.toFixed(2),
     ]);
 
@@ -57,11 +57,11 @@ export default function ReportsScreen() {
 
   const generateMonthlyReport = () => {
     const income = transactions
-      .filter((t) => t.type === "income")
+      .filter((t) => t.category.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const expenses = transactions
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.category.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const savings = income - expenses;
@@ -69,10 +69,10 @@ export default function ReportsScreen() {
       income > 0 ? ((savings / income) * 100).toFixed(1) : "0";
 
     const categoryBreakdown = transactions
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.category.type === "expense")
       .reduce(
         (acc, t) => {
-          acc[t.category] = (acc[t.category] || 0) + t.amount;
+          acc[t.category.name] = (acc[t.category.name] || 0) + t.amount;
           return acc;
         },
         {} as Record<string, number>,
@@ -231,7 +231,7 @@ export default function ReportsScreen() {
               <Text className="text-sm font-semibold text-primary dark:text-dark-primary">
                 GH₵
                 {transactions
-                  .filter((t) => t.type === "income")
+                  .filter((t) => t.category.type === "income")
                   .reduce((sum, t) => sum + t.amount, 0)
                   .toFixed(2)}
               </Text>
@@ -243,7 +243,7 @@ export default function ReportsScreen() {
               <Text className="text-sm font-semibold text-red-500">
                 GH₵
                 {transactions
-                  .filter((t) => t.type === "expense")
+                  .filter((t) => t.category.type === "expense")
                   .reduce((sum, t) => sum + t.amount, 0)
                   .toFixed(2)}
               </Text>
